@@ -1238,7 +1238,7 @@ LABColor.prototype.equals = function (a) {
   );
 };
 
-var rgb2hcl = function (rgbColor) {
+var rgb2lab = function (rgbColor) {
   var red = rgb2xyz(rgbColor.red);
   var green = rgb2xyz(rgbColor.green);
   var blue = rgb2xyz(rgbColor.blue);
@@ -1605,24 +1605,23 @@ function Pb(a) {
   return new RGBColor(b.red, b.green, b.blue, minMax(g, c, d));
 }
 
-function X(a) {
-  var b = void 0 === b ? GOLDEN_PALETTES : b;
-  var c = rgb2hcl(a),
-    d = Qb(c, b);
-  b = d.fc;
+function generatePalette(rgbColor, goldenPalettes = GOLDEN_PALETTES) {
+  var labColor = rgb2lab(rgbColor);
+  var d = Qb(labColor, goldenPalettes);
+  goldenPalettes = d.fc;
   d = d.ec;
-  var e = b[d],
+  var e = goldenPalettes[d],
     g = lab2lch(e),
-    h = lab2lch(c),
-    k = 30 > lab2lch(b[5]).chroma,
+    h = lab2lch(labColor),
+    k = 30 > lab2lch(goldenPalettes[5]).chroma,
     l = g.lightness - h.lightness,
     m = g.chroma - h.chroma,
     q = g.hue - h.hue,
     t = Cb[d],
     n = Db[d],
     r = 100;
-  return b.map(function (b, c) {
-    if (b === e) return (r = Math.max(h.lightness - 1.7, 0)), a;
+  return goldenPalettes.map(function (b, c) {
+    if (b === e) return (r = Math.max(h.lightness - 1.7, 0)), rgbColor;
     b = lab2lch(b);
     var d = b.lightness - (Cb[c] / t) * l;
     d = Math.min(d, r);
@@ -1647,8 +1646,7 @@ function X(a) {
   });
 }
 
-function Qb(a, b) {
-  b = void 0 === b ? GOLDEN_PALETTES : b;
+function Qb(a, b = GOLDEN_PALETTES) {
   if (!b.length || !b[0].length) throw Error("Invalid golden palettes");
   for (var c = Infinity, d = b[0], e = -1, g = 0; g < b.length; g++)
     for (var h = 0; h < b[g].length && 0 < c; h++) {
@@ -1723,8 +1721,6 @@ function Qb(a, b) {
     }
   return {fc: d, ec: e};
 }
-
-X(WHITE_COLOR);
 
 function Rb(a) {
   for (var b = [], c = 0; c < arguments.length; ++c) b[c - 0] = arguments[c];
@@ -2045,6 +2041,8 @@ function kc(a) {
     d = b.uc,
     e = b.selectedColor,
     g = b.qc;
+
+  console.log(c);
   b = c
     .map(function (a, b) {
       var h = void 0 !== e && a.equals(e);
@@ -2572,20 +2570,20 @@ var bd = function (a) {
     c = [];
   a = w(a);
   for (var d = a.next(); !d.done; d = a.next())
-    (d = hsl2rgb(d.value)), b.push(d), c.push(X(d));
+    (d = hsl2rgb(d.value)), b.push(d), c.push(generatePalette(d));
   return {Eb: b, yb: c};
 };
 
 var cd = function (a, b) {
   var c = [];
-  c.push(Z(a, "Primary", [X(b)], [b], "PRIMARY"));
+  c.push(Z(a, "Primary", [generatePalette(b)], [b], "PRIMARY"));
   return L(Sc, c);
 };
 
 var dd = function (a, b, c) {
   c || (c = new RGBColor(1, 1, 1));
   var d = [];
-  d.push(Z(a, "Primary", [X(b)], [b], "PRIMARY"));
+  d.push(Z(a, "Primary", [generatePalette(b)], [b], "PRIMARY"));
   return L(Rc, d);
 };
 
@@ -2642,7 +2640,7 @@ var hd = function (a, b, c, d) {
     h = function (b) {
       a.app.dispatch(g(b));
     },
-    k = X(e),
+    generatedPalette = generatePalette(e),
     l = b ? "Primary" : "Secondary";
   c = a.gc.u(
     Object.assign({}, c, {
@@ -2667,7 +2665,7 @@ var hd = function (a, b, c, d) {
   );
   e = kc({
     uc: b ? "Primary" : "Secondary",
-    tc: k,
+    tc: generatedPalette,
     qc: function (a, b) {
       h(rgb2hsb(a[b]));
     },
