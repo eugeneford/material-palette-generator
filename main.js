@@ -61,7 +61,7 @@ var x = function (a, b) {
 
 var ra = (2147483648 * Math.random()) | 0;
 
-var A = function (a, b, c) {
+var minMax = function (a, b, c) {
   return Math.min(Math.max(a, b), c);
 };
 /*
@@ -80,7 +80,7 @@ all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+FITNESS FOR minMax PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -609,7 +609,7 @@ License at http://www.apache.org/licenses/LICENSE-2.0
 
 THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR minMax PARTICULAR PURPOSE,
 MERCHANTABLITY OR NON-INFRINGEMENT.
 
 See the Apache Version 2.0 License for specific language governing permissions
@@ -1023,24 +1023,24 @@ RGBColor.prototype.equals = function (rgbColor) {
   );
 };
 
-var ib = function (a) {
-  return 1 - a.alpha < ACCURACY ? a : new RGBColor(a.red, a.green, a.blue);
+var normalizeRGB = function (rgbColor) {
+  return 1 - rgbColor.alpha < ACCURACY ? rgbColor : new RGBColor(rgbColor.red, rgbColor.green, rgbColor.blue);
 };
 
-var jb = function (a, b) {
-  var c = ib(b);
-  if (!(1 - a.alpha < ACCURACY)) {
-    var d = c.alpha * (1 - a.alpha);
-    a = new RGBColor(
-      a.red * a.alpha + c.red * d,
-      a.green * a.alpha + c.green * d,
-      a.blue * a.alpha + c.blue * d,
-      a.alpha + d
+var contrastRatio = function (rgbColor1, rgbColor2) {
+  var c = normalizeRGB(rgbColor2);
+  if (!(1 - rgbColor1.alpha < ACCURACY)) {
+    var d = c.alpha * (1 - rgbColor1.alpha);
+    rgbColor1 = new RGBColor(
+      rgbColor1.red * rgbColor1.alpha + c.red * d,
+      rgbColor1.green * rgbColor1.alpha + c.green * d,
+      rgbColor1.blue * rgbColor1.alpha + c.blue * d,
+      rgbColor1.alpha + d
     );
   }
-  a = 0.2126 * rgb2xyz(a.red) + 0.7152 * rgb2xyz(a.green) + 0.0722 * rgb2xyz(a.blue);
-  b = 0.2126 * rgb2xyz(b.red) + 0.7152 * rgb2xyz(b.green) + 0.0722 * rgb2xyz(b.blue);
-  return a >= b ? (a + 0.05) / (b + 0.05) : (b + 0.05) / (a + 0.05);
+  rgbColor1 = 0.2126 * rgb2xyz(rgbColor1.red) + 0.7152 * rgb2xyz(rgbColor1.green) + 0.0722 * rgb2xyz(rgbColor1.blue);
+  rgbColor2 = 0.2126 * rgb2xyz(rgbColor2.red) + 0.7152 * rgb2xyz(rgbColor2.green) + 0.0722 * rgb2xyz(rgbColor2.blue);
+  return rgbColor1 >= rgbColor2 ? (rgbColor1 + 0.05) / (rgbColor2 + 0.05) : (rgbColor2 + 0.05) / (rgbColor1 + 0.05);
 };
 
 var kb = function (a, b, c, d) {
@@ -1075,14 +1075,14 @@ var kb = function (a, b, c, d) {
   return new RGBColor(e, g, d, b);
 };
 
-var lb = function (a) {
-  var b = (1 - Math.abs(2 * a.lightness - 1)) * a.saturation;
-  return kb(a.hue, a.alpha, b, Math.max(0, a.lightness - b / 2));
+var hsl2rgb = function (hslColor) {
+  var b = (1 - Math.abs(2 * hslColor.lightness - 1)) * hslColor.saturation;
+  return kb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
 };
 
-var S = function (hsb) {
-  var b = hsb.value * hsb.saturation;
-  return kb(hsb.hue, hsb.alpha, b, Math.max(0, hsb.value - b));
+var hsb2rgb = function (hsbColor) {
+  var b = hsbColor.value * hsbColor.saturation;
+  return kb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
 };
 
 var hex2rgb = function (hexColor) {
@@ -1156,33 +1156,33 @@ HSLColor.prototype.rotate = function (hueAdjustment) {
   return new HSLColor((this.hue + hueAdjustment + 360) % 360, this.saturation, this.lightness, this.alpha);
 };
 
-var rb = function (a) {
-  var b = Math.max(a.red, a.green, a.blue),
-    c = Math.min(a.red, a.green, a.blue),
+var rgb2hsl = function (rgbColor) {
+  var b = Math.max(rgbColor.red, rgbColor.green, rgbColor.blue),
+    c = Math.min(rgbColor.red, rgbColor.green, rgbColor.blue),
     d = 0,
     e = 0,
-    g = A(0.5 * (b + c), 0, 1);
+    g = minMax(0.5 * (b + c), 0, 1);
   b - c > ACCURACY &&
-  (b === a.red
-    ? (d = (60 * (a.green - a.blue)) / (b - c))
-    : b === a.green
-      ? (d = (60 * (a.blue - a.red)) / (b - c) + 120)
-      : b === a.blue && (d = (60 * (a.red - a.green)) / (b - c) + 240),
+  (b === rgbColor.red
+    ? (d = (60 * (rgbColor.green - rgbColor.blue)) / (b - c))
+    : b === rgbColor.green
+      ? (d = (60 * (rgbColor.blue - rgbColor.red)) / (b - c) + 120)
+      : b === rgbColor.blue && (d = (60 * (rgbColor.red - rgbColor.green)) / (b - c) + 240),
     (e =
       0 < g && 0.5 >= g
-        ? A((b - c) / (2 * g), 0, 1)
-        : A((b - c) / (2 - 2 * g), 0, 1)));
+        ? minMax((b - c) / (2 * g), 0, 1)
+        : minMax((b - c) / (2 - 2 * g), 0, 1)));
   d = Math.round(d + 360) % 360;
-  return new HSLColor(d, e, g, a.alpha);
+  return new HSLColor(d, e, g, rgbColor.alpha);
 };
 
 var hsb2hsl = function (hsbColor) {
-  var b = A(((2 - hsbColor.saturation) * hsbColor.value) / 2, 0, 1),
+  var b = minMax(((2 - hsbColor.saturation) * hsbColor.value) / 2, 0, 1),
     c = 0;
   0 < b &&
   1 > b &&
   (c = (hsbColor.saturation * hsbColor.value) / (0.5 > b ? 2 * b : 2 - 2 * b));
-  c = A(c, 0, 1);
+  c = minMax(c, 0, 1);
   return new HSLColor(hsbColor.hue, c, b, hsbColor.alpha);
 };
 
@@ -1216,8 +1216,8 @@ var rgb2hsb = function (rgbColor) {
 
 var hsl2hsb = function (hslColor) {
   var b = hslColor.saturation * (0.5 > hslColor.lightness ? hslColor.lightness : 1 - hslColor.lightness),
-    c = A(hslColor.lightness + b, 0, 1);
-  return new HSBColor(hslColor.hue, A(0 < c ? (2 * b) / c : 0, 0, 1), c, hslColor.alpha);
+    c = minMax(hslColor.lightness + b, 0, 1);
+  return new HSBColor(hslColor.hue, minMax(0 < c ? (2 * b) / c : 0, 0, 1), c, hslColor.alpha);
 };
 
 var LABColor = function (lightness, a, b, alpha = 1) {
@@ -1274,12 +1274,12 @@ LCHColor.prototype.equals = function (a) {
   );
 };
 
-var xb = function (a) {
+var lab2lch = function (labColor) {
   return new LCHColor(
-    a.lightness,
-    Math.sqrt(Math.pow(a.a, 2) + Math.pow(a.b, 2)),
-    ((180 * Math.atan2(a.b, a.a)) / Math.PI + 360) % 360,
-    a.alpha
+    labColor.lightness,
+    Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2)),
+    ((180 * Math.atan2(labColor.b, labColor.a)) / Math.PI + 360) % 360,
+    labColor.alpha
   );
 };
 
@@ -1306,12 +1306,13 @@ function lab2xyz(t) {
   return t > t1 ? Math.pow(t, 3) : t2 * (t - t0);
 }
 
-var Ab = function (a, b) {
+var lab2hue = function (a, b) {
   if (1e-4 > Math.abs(a) && 1e-4 > Math.abs(b)) return 0;
   a = (180 * Math.atan2(a, b)) / Math.PI;
   return 0 <= a ? a : a + 360;
 };
-var Bb = [
+
+var GOLDEN_PALETTES = [
   [
     new LABColor(94.67497003305085, 7.266715066863771, 1.000743882272359),
     new LABColor(86.7897416761699, 18.370736761658012, 4.23637133971424),
@@ -1583,9 +1584,9 @@ var darkTextEmphasis = {
 function Ob(a) {
   var MIN_CONTRAST = 4.5;
 
-  var c = jb(WHITE_COLOR, a);
+  var c = contrastRatio(WHITE_COLOR, a);
   if (c >= MIN_CONTRAST) return 0;
-  a = jb(BLACK_COLOR, a);
+  a = contrastRatio(BLACK_COLOR, a);
   return a >= MIN_CONTRAST ? 1 : c > a ? 0 : 1;
 }
 
@@ -1593,27 +1594,27 @@ function Pb(a) {
   var b = 0 === Ob(a) ? lightTextEmphasis.HIGH : darkTextEmphasis.HIGH,
     c = b.alpha;
   var d = void 0 === d ? 1 : d;
-  a = ib(a);
+  a = normalizeRGB(a);
   for (var e = c - 0.01, g = d; 0.01 < g - e;) {
     var h = (e + g) / 2;
     4.5 >
-    jb(Math.abs(b.alpha - h) < ACCURACY ? b : new RGBColor(b.red, b.green, b.blue, h), a)
+    contrastRatio(Math.abs(b.alpha - h) < ACCURACY ? b : new RGBColor(b.red, b.green, b.blue, h), a)
       ? (e = h)
       : (g = h);
   }
-  return new RGBColor(b.red, b.green, b.blue, A(g, c, d));
+  return new RGBColor(b.red, b.green, b.blue, minMax(g, c, d));
 }
 
 function X(a) {
-  var b = void 0 === b ? Bb : b;
+  var b = void 0 === b ? GOLDEN_PALETTES : b;
   var c = rgb2hcl(a),
     d = Qb(c, b);
   b = d.fc;
   d = d.ec;
   var e = b[d],
-    g = xb(e),
-    h = xb(c),
-    k = 30 > xb(b[5]).chroma,
+    g = lab2lch(e),
+    h = lab2lch(c),
+    k = 30 > lab2lch(b[5]).chroma,
     l = g.lightness - h.lightness,
     m = g.chroma - h.chroma,
     q = g.hue - h.hue,
@@ -1622,11 +1623,11 @@ function X(a) {
     r = 100;
   return b.map(function (b, c) {
     if (b === e) return (r = Math.max(h.lightness - 1.7, 0)), a;
-    b = xb(b);
+    b = lab2lch(b);
     var d = b.lightness - (Cb[c] / t) * l;
     d = Math.min(d, r);
     c = new LCHColor(
-      A(d, 0, 100),
+      minMax(d, 0, 100),
       Math.max(0, k ? b.chroma - m : b.chroma - m * Math.min(Db[c] / n, 1.25)),
       (b.hue - q + 360) % 360
     );
@@ -1638,16 +1639,16 @@ function X(a) {
     d = 1 * lab2xyz(g);
     g = 1.08883 * lab2xyz(g - c.b / 200);
     return new RGBColor(
-      A(xyz2rgb(3.2404542 * b + -1.5371385 * d + -0.4985314 * g), 0, 1),
-      A(xyz2rgb(-0.969266 * b + 1.8760108 * d + 0.041556 * g), 0, 1),
-      A(xyz2rgb(0.0556434 * b + -0.2040259 * d + 1.0572252 * g), 0, 1),
+      minMax(xyz2rgb(3.2404542 * b + -1.5371385 * d + -0.4985314 * g), 0, 1),
+      minMax(xyz2rgb(-0.969266 * b + 1.8760108 * d + 0.041556 * g), 0, 1),
+      minMax(xyz2rgb(0.0556434 * b + -0.2040259 * d + 1.0572252 * g), 0, 1),
       c.alpha
     );
   });
 }
 
 function Qb(a, b) {
-  b = void 0 === b ? Bb : b;
+  b = void 0 === b ? GOLDEN_PALETTES : b;
   if (!b.length || !b[0].length) throw Error("Invalid golden palettes");
   for (var c = Infinity, d = b[0], e = -1, g = 0; g < b.length; g++)
     for (var h = 0; h < b[g].length && 0 < c; h++) {
@@ -1665,8 +1666,8 @@ function Qb(a, b) {
         H = Math.sqrt(Math.pow(r, 2) + Math.pow(a.b, 2));
       t = H - N;
       var ja = (N + H) / 2;
-      n = Ab(k.b, n);
-      r = Ab(a.b, r);
+      n = lab2hue(k.b, n);
+      r = lab2hue(a.b, r);
       N =
         2 *
         Math.sqrt(N * H) *
@@ -1855,8 +1856,8 @@ var dc = function (a, b, c) {
         var e = d.getBoundingClientRect();
         b = new HSBColor(
           c.hue,
-          A((b - e.left) / e.width, 0, 1),
-          1 - A((g - e.top) / e.height, 0, 1),
+          minMax((b - e.left) / e.width, 0, 1),
+          1 - minMax((g - e.top) / e.height, 0, 1),
           c.alpha
         );
         a.fb(b);
@@ -1874,7 +1875,7 @@ var dc = function (a, b, c) {
       T: function (b) {
         var e = d.getBoundingClientRect();
         b = new HSBColor(
-          360 * A((b - e.left) / e.width, 0, 1),
+          360 * minMax((b - e.left) / e.width, 0, 1),
           c.saturation,
           c.value,
           c.alpha
@@ -1896,8 +1897,8 @@ cc.prototype.u = function (a) {
   d = (c.hue / 360) * 100;
   var e = 100 * c.saturation,
     g = 100 - 100 * c.value,
-    h = S(new HSBColor(c.hue, 1, 1)),
-    k = S(c);
+    h = hsb2rgb(new HSBColor(c.hue, 1, 1)),
+    k = hsb2rgb(c);
   return L(
     bc,
     function (a) {
@@ -1923,7 +1924,7 @@ var gc = function (a) {
     l = a.sc,
     m = a.Fc,
     q = a.L,
-    t = S(b);
+    t = hsb2rgb(b);
   t = Yb({
     value: void 0 !== c ? c : rgb2hex(t),
     G: "text-field color-picker-inputs__hex",
@@ -1951,7 +1952,7 @@ var gc = function (a) {
     Ca: function (a) {
       a = hc(a);
       a = 0 > a ? Math.floor(a) : Math.ceil(a);
-      a = new HSBColor(A(b.hue + a, 0, 360), b.saturation, b.value, b.alpha);
+      a = new HSBColor(minMax(b.hue + a, 0, 360), b.saturation, b.value, b.alpha);
       q(a);
     }
   });
@@ -1967,7 +1968,7 @@ var gc = function (a) {
     S: m,
     Ca: function (a) {
       a = hsl2hsb(
-        new HSLColor(n.hue, A(100 * n.saturation + hc(a), 0, 100) / 100, n.lightness, n.alpha)
+        new HSLColor(n.hue, minMax(100 * n.saturation + hc(a), 0, 100) / 100, n.lightness, n.alpha)
       );
       q(a);
     }
@@ -1984,13 +1985,13 @@ var gc = function (a) {
     S: m,
     Ca: function (a) {
       a = hsl2hsb(
-        new HSLColor(n.hue, n.saturation, A(100 * n.lightness + hc(a), 0, 100) / 100, n.alpha)
+        new HSLColor(n.hue, n.saturation, minMax(100 * n.lightness + hc(a), 0, 100) / 100, n.alpha)
       );
       q(a);
     }
   });
   t = [t];
-  a.Dc || t.push(L(ac, c, L($b, "H"), d, L($b, "S"), m, L($b, "L")));
+  a.Dc || t.push(L(ac, c, L($b, "H"), d, L($b, "hsb2rgb"), m, L($b, "L")));
   return t;
 };
 
@@ -2357,7 +2358,7 @@ function reducer(state = defaultState, action) {
 }
 
 function Hc(a) {
-  var b = void 0 === b ? S(a) : b;
+  var b = void 0 === b ? hsb2rgb(a) : b;
   var c = normalizeHSL(hsb2hsl(a));
   return {
     rb: rgb2hex(b),
@@ -2571,7 +2572,7 @@ var bd = function (a) {
     c = [];
   a = w(a);
   for (var d = a.next(); !d.done; d = a.next())
-    (d = lb(d.value)), b.push(d), c.push(X(d));
+    (d = hsl2rgb(d.value)), b.push(d), c.push(X(d));
   return {Eb: b, yb: c};
 };
 
@@ -2609,14 +2610,14 @@ var ed = function (a, b, c, d, e) {
 
 var fd = function (a, b, c) {
   var d = c.secondaryColor,
-    e = S(c.primaryColor),
-    g = d && S(d);
+    e = hsb2rgb(c.primaryColor),
+    g = d && hsb2rgb(d);
   d =
     "/tools/color/#!/?view.left=0&view.right=0&primary.color=" +
     rgb2hex(e) +
     (g ? "&secondary.color=" + rgb2hex(g) : "");
   e = ed(a, "Primary", "P", !0, e);
-  g = ed(a, "Secondary", "S", !1, g);
+  g = ed(a, "Secondary", "hsb2rgb", !1, g);
   var h = Rb("utility-panel");
   return L(
     Oc,
@@ -2636,7 +2637,7 @@ var fd = function (a, b, c) {
 };
 
 var hd = function (a, b, c, d) {
-  var e = S(c.color),
+  var e = hsb2rgb(c.color),
     g = b ? setPrimaryColor : setSecondaryColor,
     h = function (b) {
       a.app.dispatch(g(b));
@@ -2700,7 +2701,7 @@ var gd = function (a, b, c) {
 
 Zc.prototype.u = function (state) {
   var context = this;
-  var c = S(state.colors.primaryColor);
+  var c = hsb2rgb(state.colors.primaryColor);
 
   c = cd(this, c);
 
