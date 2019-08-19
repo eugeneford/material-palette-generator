@@ -1283,12 +1283,39 @@ var lab2lch = function (labColor) {
   );
 };
 
+var lch2lab = function (lchColor) {
+  const hr = lchColor.hue / 360 * 2 * Math.PI;
+  const a = lchColor.chroma * Math.cos(hr);
+  const b = lchColor.chroma * Math.sin(hr);
+
+  return new LABColor(lchColor.lightness, a, b, lchColor.alpha);
+};
+
 function rgb2xyz(x) {
   return 0.04045 >= x ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
 }
 
-function xyz2rgb(a) {
-  return 0.0031308 >= a ? 12.92 * a : 1.055 * Math.pow(a, 1 / 2.4) - 0.055;
+function xyz2rgb(xyzColor) {
+  let r;
+  let g;
+  let b;
+
+  r = (xyzColor.x * 3.2404542) + (xyzColor.y * -1.5371385) + (xyzColor.z * -0.4985314);
+  g = (xyzColor.x * -0.969266) + (xyzColor.y * 1.8760108) + (xyzColor.z * 0.041556);
+  b = (xyzColor.x * 0.0556434) + (xyzColor.y * -0.2040259) + (xyzColor.z * 1.0572252);
+
+  // Assume sRGB
+  r = r > 0.0031308 ? ((1.055 * (r ** (1.0 / 2.4))) - 0.055) : r * 12.92;
+
+  g = g > 0.0031308 ? ((1.055 * (g ** (1.0 / 2.4))) - 0.055) : g * 12.92;
+
+  b = b > 0.0031308 ? ((1.055 * (b ** (1.0 / 2.4))) - 0.055) : b * 12.92;
+
+  r = Math.min(Math.max(0, r), 1);
+  g = Math.min(Math.max(0, g), 1);
+  b = Math.min(Math.max(0, b), 1);
+
+  return new RGBColor(r, g, b, xyzColor.alpha);
 }
 
 function xyz2lab(t) {
@@ -1299,11 +1326,35 @@ function xyz2lab(t) {
   return t > t3 ? Math.pow(t, 1 / 3) : t / t2 + t0;
 }
 
-function lab2xyz(t) {
-  const t0 = 4 / 29;
-  const t1 = 6 / 29;
-  const t2 = 3 * Math.pow(t1, 2);
-  return t > t1 ? Math.pow(t, 3) : t2 * (t - t0);
+var XYZColor = function (x, y, z, alpha = 1) {
+  this.x = x;
+  this.y = y;
+  this.z = z;
+  this.alpha = alpha;
+};
+
+function lab2xyz(labColor) {
+  let x;
+  let y;
+  let z;
+
+  y = (labColor.lightness + 16) / 116;
+  x = labColor.a / 500 + y;
+  z = y - labColor.b / 200;
+
+  const y2 = y ** 3;
+  const x2 = x ** 3;
+  const z2 = z ** 3;
+
+  y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+  x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+  z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+  x *= 0.95047;
+  y *= 1;
+  z *= 1.08883;
+
+  return new XYZColor(x, y, z, labColor.alpha);
 }
 
 var lab2hue = function (a, b) {
@@ -1540,7 +1591,7 @@ var GOLDEN_PALETTES = [
     new LABColor(36.92458930566504, -5.319878610845596, -8.341943474561553),
     new LABColor(29.115334784637618, -4.168907828645069, -6.8629962199973304),
     new LABColor(19.958338450799914, -3.3116721453186617, -5.4486142104736786)
-  ]
+  ],
 ];
 
 var Cb = [
@@ -1581,91 +1632,89 @@ var darkTextEmphasis = {
   DISABLED: new RGBColor(0, 0, 0, 0.38)
 };
 
-function Ob(a) {
+function getTextColor(rgbColor) {
   var MIN_CONTRAST = 4.5;
 
-  var c = contrastRatio(WHITE_COLOR, a);
-  if (c >= MIN_CONTRAST) return 0;
-  a = contrastRatio(BLACK_COLOR, a);
-  return a >= MIN_CONTRAST ? 1 : c > a ? 0 : 1;
-}
+  var whiteContrast = contrastRatio(WHITE_COLOR, rgbColor);
+  if (whiteContrast >= MIN_CONTRAST) return lightTextEmphasis.HIGH;
+  var darkContrast = contrastRatio(BLACK_COLOR, rgbColor);
 
-function Pb(a) {
-  var b = 0 === Ob(a) ? lightTextEmphasis.HIGH : darkTextEmphasis.HIGH,
-    c = b.alpha;
-  var d = void 0 === d ? 1 : d;
-  a = normalizeRGB(a);
-  for (var e = c - 0.01, g = d; 0.01 < g - e;) {
-    var h = (e + g) / 2;
-    4.5 >
-    contrastRatio(Math.abs(b.alpha - h) < ACCURACY ? b : new RGBColor(b.red, b.green, b.blue, h), a)
-      ? (e = h)
-      : (g = h);
+  if (darkContrast >= MIN_CONTRAST) {
+    return darkTextEmphasis.HIGH;
+  } else {
+    if (whiteContrast > darkContrast) {
+      return lightTextEmphasis.HIGH;
+    } else {
+      return darkTextEmphasis.HIGH;
+    }
   }
-  return new RGBColor(b.red, b.green, b.blue, minMax(g, c, d));
 }
 
-function generatePalette(rgbColor, goldenPalettes = GOLDEN_PALETTES) {
-  var labColor = rgb2lab(rgbColor);
-  var d = Qb(labColor, goldenPalettes);
-  goldenPalettes = d.fc;
-  d = d.ec;
-  var e = goldenPalettes[d],
-    g = lab2lch(e),
-    h = lab2lch(labColor),
-    k = 30 > lab2lch(goldenPalettes[5]).chroma,
-    l = g.lightness - h.lightness,
-    m = g.chroma - h.chroma,
-    q = g.hue - h.hue,
-    t = Cb[d],
-    n = Db[d],
-    r = 100;
-  return goldenPalettes.map(function (b, c) {
-    if (b === e) return (r = Math.max(h.lightness - 1.7, 0)), rgbColor;
-    b = lab2lch(b);
-    var d = b.lightness - (Cb[c] / t) * l;
+function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
+  var sourceLabColor = rgb2lab(sourceRgbColor);
+  var goldenPalette = findClosestGoldenPalette(sourceLabColor, goldenPalettes);
+  var goldenColors = goldenPalette.colors;
+  var closestGoldenLabColor = goldenColors[goldenPalette.colorIndex];
+  var closestGoldenLchColor = lab2lch(closestGoldenLabColor);
+  var sourceLchColor = lab2lch(sourceLabColor);
+  var k = 30 > lab2lch(goldenColors[5]).chroma;
+  var l = closestGoldenLchColor.lightness - sourceLchColor.lightness;
+  var m = closestGoldenLchColor.chroma - sourceLchColor.chroma;
+  var q = closestGoldenLchColor.hue - sourceLchColor.hue;
+  var t = Cb[goldenPalette.colorIndex];
+  var n = Db[goldenPalette.colorIndex];
+  var r = 100;
+
+  return goldenColors.map(function (goldenLabColor, index) {
+    if (goldenLabColor === closestGoldenLabColor) {
+      r = Math.max(sourceLchColor.lightness - 1.7, 0);
+      return sourceRgbColor;
+    }
+
+    var goldenLchColor = lab2lch(goldenLabColor);
+    var d = goldenLabColor.lightness - (Cb[index] / t) * l;
     d = Math.min(d, r);
-    c = new LCHColor(
+
+    var lchColor = new LCHColor(
       minMax(d, 0, 100),
-      Math.max(0, k ? b.chroma - m : b.chroma - m * Math.min(Db[c] / n, 1.25)),
-      (b.hue - q + 360) % 360
+      Math.max(0, k ? goldenLchColor.chroma - m : goldenLchColor.chroma - m * Math.min(Db[index] / n, 1.25)),
+      (goldenLchColor.hue - q + 360) % 360
     );
-    r = Math.max(c.lightness - 1.7, 0);
-    b = (c.hue * Math.PI) / 180;
-    c = new LABColor(c.lightness, c.chroma * Math.cos(b), c.chroma * Math.sin(b), c.alpha);
-    var g = (c.lightness + 16) / 116;
-    b = 0.95047 * lab2xyz(g + c.a / 500);
-    d = 1 * lab2xyz(g);
-    g = 1.08883 * lab2xyz(g - c.b / 200);
-    return new RGBColor(
-      minMax(xyz2rgb(3.2404542 * b + -1.5371385 * d + -0.4985314 * g), 0, 1),
-      minMax(xyz2rgb(-0.969266 * b + 1.8760108 * d + 0.041556 * g), 0, 1),
-      minMax(xyz2rgb(0.0556434 * b + -0.2040259 * d + 1.0572252 * g), 0, 1),
-      c.alpha
-    );
+
+    r = Math.max(lchColor.lightness - 1.7, 0);
+
+    const labColor = lch2lab(lchColor);
+    const xyzColor = lab2xyz(labColor);
+    const rgbColor =  xyz2rgb(xyzColor);
+
+    return rgbColor;
   });
 }
 
-function Qb(a, b = GOLDEN_PALETTES) {
-  if (!b.length || !b[0].length) throw Error("Invalid golden palettes");
-  for (var c = Infinity, d = b[0], e = -1, g = 0; g < b.length; g++)
-    for (var h = 0; h < b[g].length && 0 < c; h++) {
-      var k = b[g][h],
-        l = (k.lightness + a.lightness) / 2,
-        m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2)),
-        q = Math.sqrt(Math.pow(a.a, 2) + Math.pow(a.b, 2)),
-        t = (m + q) / 2;
+function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
+  for (var c = Infinity, d = goldenPalettes[0], e = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++)
+    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < c; colorIndex++) {
+      var k = goldenPalettes[paletteIndex][colorIndex];
+      var l = (k.lightness + labColor.lightness) / 2;
+      var m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2));
+      var q = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
+      var t = (m + q) / 2;
+
       t =
         0.5 *
         (1 - Math.sqrt(Math.pow(t, 7) / (Math.pow(t, 7) + Math.pow(25, 7))));
-      var n = k.a * (1 + t),
-        r = a.a * (1 + t),
-        N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2)),
-        H = Math.sqrt(Math.pow(r, 2) + Math.pow(a.b, 2));
+
+      var n = k.a * (1 + t);
+      var r = labColor.a * (1 + t);
+      var N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2));
+      var H = Math.sqrt(Math.pow(r, 2) + Math.pow(labColor.b, 2));
+
       t = H - N;
+
       var ja = (N + H) / 2;
+
       n = lab2hue(k.b, n);
-      r = lab2hue(a.b, r);
+      r = lab2hue(labColor.b, r);
       N =
         2 *
         Math.sqrt(N * H) *
@@ -1681,6 +1730,7 @@ function Qb(a, b = GOLDEN_PALETTES) {
             Math.PI) /
           180
         );
+
       m =
         1e-4 > Math.abs(m) || 1e-4 > Math.abs(q)
           ? 0
@@ -1689,7 +1739,9 @@ function Qb(a, b = GOLDEN_PALETTES) {
           : 360 > n + r
             ? (n + r + 360) / 2
             : (n + r - 360) / 2;
+
       q = 1 + 0.045 * ja;
+
       H =
         1 +
         0.015 *
@@ -1699,9 +1751,10 @@ function Qb(a, b = GOLDEN_PALETTES) {
           0.24 * Math.cos((2 * m * Math.PI) / 180) +
           0.32 * Math.cos(((3 * m + 6) * Math.PI) / 180) -
           0.2 * Math.cos(((4 * m - 63) * Math.PI) / 180));
+
       k = Math.sqrt(
         Math.pow(
-          (a.lightness - k.lightness) /
+          (labColor.lightness - k.lightness) /
           (1 +
             (0.015 * Math.pow(l - 50, 2)) /
             Math.sqrt(20 + Math.pow(l - 50, 2))),
@@ -1717,9 +1770,10 @@ function Qb(a, b = GOLDEN_PALETTES) {
         -2 *
         (N / (1 * H))
       );
-      k < c && ((c = k), (d = b[g]), (e = h));
+
+      k < c && ((c = k), (d = goldenPalettes[paletteIndex]), (e = colorIndex));
     }
-  return {fc: d, ec: e};
+  return {colors: d, colorIndex: e};
 }
 
 function Rb(a) {
@@ -2041,8 +2095,6 @@ function kc(a) {
     d = b.uc,
     e = b.selectedColor,
     g = b.qc;
-
-  console.log(c);
   b = c
     .map(function (a, b) {
       var h = void 0 !== e && a.equals(e);
@@ -2106,7 +2158,7 @@ mc.prototype.u = function () {
               c.appendChild(h);
             }
           } catch (k) {
-            window.__materialGlobalErrorHandler(k);
+            console.error(k);
           } finally {
             a.ya = !1;
           }
@@ -2502,12 +2554,11 @@ x(Zc, Sb);
 var $c = function (a, b, c, d) {
   var e = b ? "color-palette__cell--selected" : "";
   d = b && d ? d.charAt(0) : "";
-  b = b ? (a ? Pb(a).toCSSValue() : "rgba(255, 255, 255, 0.6)") : "";
-  var g = 0 === Ob(a) ? "ripple-white" : "";
+  b = b ? (a ? getTextColor(a).toCSSValue() : "rgba(255, 255, 255, 0.6)") : "";
   return L(
     Wc,
     e,
-    g,
+    "",
     a.toCSSValue(),
     b,
     c,
@@ -2565,15 +2616,6 @@ var Z = function (a, b, c, d, e) {
   return g;
 };
 
-var bd = function (a) {
-  var b = [],
-    c = [];
-  a = w(a);
-  for (var d = a.next(); !d.done; d = a.next())
-    (d = hsl2rgb(d.value)), b.push(d), c.push(generatePalette(d));
-  return {Eb: b, yb: c};
-};
-
 var cd = function (a, b) {
   var c = [];
   c.push(Z(a, "Primary", [generatePalette(b)], [b], "PRIMARY"));
@@ -2588,12 +2630,11 @@ var dd = function (a, b, c) {
 };
 
 var ed = function (a, b, c, d, e) {
-  var g = e ? (0 === Ob(e) ? "ripple-white" : "") : "",
-    h = e ? "background-color: " + e.toCSSValue() + ";" : "";
-  e = e ? Pb(e).toCSSValue() : "rgba(255, 255, 255, 0.6)";
+  var h = e ? "background-color: " + e.toCSSValue() + ";" : "";
+  e = e ? getTextColor(e).toCSSValue() : "rgba(255, 255, 255, 0.6)";
   return L(
     Pc,
-    g,
+    "",
     h,
     function () {
       a.app.dispatch({type: "SHOW_COLOR_PICKER", isPrimaryColor: d});
