@@ -1658,9 +1658,9 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var closestGoldenLchColor = lab2lch(closestGoldenLabColor);
   var sourceLchColor = lab2lch(sourceLabColor);
   var k = 30 > lab2lch(goldenColors[5]).chroma;
-  var l = closestGoldenLchColor.lightness - sourceLchColor.lightness;
-  var m = closestGoldenLchColor.chroma - sourceLchColor.chroma;
-  var q = closestGoldenLchColor.hue - sourceLchColor.hue;
+  var deltaGoldenLightness = closestGoldenLchColor.lightness - sourceLchColor.lightness;
+  var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
+  var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
   var t = Cb[goldenPalette.colorIndex];
   var n = Db[goldenPalette.colorIndex];
   var r = 100;
@@ -1672,20 +1672,23 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
-    var d = goldenLabColor.lightness - (Cb[index] / t) * l;
+    var d = goldenLabColor.lightness - (Cb[index] / t) * deltaGoldenLightness;
     d = Math.min(d, r);
 
     var lchColor = new LCHColor(
       minMax(d, 0, 100),
-      Math.max(0, k ? goldenLchColor.chroma - m : goldenLchColor.chroma - m * Math.min(Db[index] / n, 1.25)),
-      (goldenLchColor.hue - q + 360) % 360
+      Math.max(0, k ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25)),
+      (goldenLchColor.hue - deltaGoldenHue + 360) % 360
     );
 
-    r = Math.max(lchColor.lightness - 1.7, 0);
+    r = Math.max(lchColor.lightness - 1,7, 0);
 
     const labColor = lch2lab(lchColor);
     const xyzColor = lab2xyz(labColor);
     const rgbColor =  xyz2rgb(xyzColor);
+
+    console.log(k);
+    console.log('#' + rgb2hex(rgbColor));
 
     return rgbColor;
   });
