@@ -1594,7 +1594,7 @@ var GOLDEN_PALETTES = [
   ],
 ];
 
-var Cb = [
+var Cb = [ // Lightness something
   2.048875457,
   5.124792061,
   8.751659557,
@@ -1607,7 +1607,7 @@ var Cb = [
   15.09818372
 ];
 
-var Db = [
+var Db = [ // Chroma something
   1.762442714,
   4.213532634,
   7.395827458,
@@ -1663,17 +1663,18 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
   var t = Cb[goldenPalette.colorIndex];
   var n = Db[goldenPalette.colorIndex];
-  var r = 100;
+  var lightnessMaximum = 100;
+  const lightnessMinimumStep = 1.7;
 
   return goldenColors.map(function (goldenLabColor, index) {
     if (goldenLabColor === closestGoldenLabColor) {
-      r = Math.max(sourceLchColor.lightness - 1.7, 0);
+      lightnessMaximum = Math.max(sourceLchColor.lightness - 1.7, 0);
       return sourceRgbColor;
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
     var d = goldenLabColor.lightness - (Cb[index] / t) * deltaGoldenLightness;
-    d = Math.min(d, r);
+    d = Math.min(d, lightnessMaximum);
 
     var lchColor = new LCHColor(
       minMax(d, 0, 100),
@@ -1681,7 +1682,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
       (goldenLchColor.hue - deltaGoldenHue + 360) % 360
     );
 
-    r = Math.max(lchColor.lightness - 1,7, 0);
+    lightnessMaximum = Math.max(lchColor.lightness - lightnessMinimumStep, 0);
 
     const labColor = lch2lab(lchColor);
     const xyzColor = lab2xyz(labColor);
