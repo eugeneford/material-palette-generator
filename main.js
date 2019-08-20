@@ -1673,23 +1673,22 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
-    var d = goldenLabColor.lightness - (Cb[index] / t) * deltaGoldenLightness;
-    d = Math.min(d, lightnessMaximum);
+    var lightness = goldenLabColor.lightness - (Cb[index] / t) * deltaGoldenLightness;
+    lightness = Math.min(lightness, lightnessMaximum);
+    lightness = minMax(lightness, 0, 100);
 
-    var lchColor = new LCHColor(
-      minMax(d, 0, 100),
-      Math.max(0, k ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25)),
-      (goldenLchColor.hue - deltaGoldenHue + 360) % 360
-    );
+    var chroma = k ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25);
+    chroma = Math.max(0, chroma);
+
+    var hue = (goldenLchColor.hue - deltaGoldenHue + 360) % 360;
+
+    var lchColor = new LCHColor(lightness, chroma, hue);
 
     lightnessMaximum = Math.max(lchColor.lightness - lightnessMinimumStep, 0);
 
     const labColor = lch2lab(lchColor);
     const xyzColor = lab2xyz(labColor);
-    const rgbColor =  xyz2rgb(xyzColor);
-
-    console.log(k);
-    console.log('#' + rgb2hex(rgbColor));
+    const rgbColor = xyz2rgb(xyzColor);
 
     return rgbColor;
   });
