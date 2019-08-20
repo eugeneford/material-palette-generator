@@ -1654,15 +1654,15 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var sourceLabColor = rgb2lab(sourceRgbColor);
   var goldenPalette = findClosestGoldenPalette(sourceLabColor, goldenPalettes);
   var goldenColors = goldenPalette.colors;
-  var closestGoldenLabColor = goldenColors[goldenPalette.colorIndex];
+  var closestGoldenLabColor = goldenColors[goldenPalette.closestReference];
   var closestGoldenLchColor = lab2lch(closestGoldenLabColor);
   var sourceLchColor = lab2lch(sourceLabColor);
   var k = 30 > lab2lch(goldenColors[5]).chroma;
   var deltaGoldenLightness = closestGoldenLchColor.lightness - sourceLchColor.lightness;
   var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
-  var t = Cb[goldenPalette.colorIndex];
-  var n = Db[goldenPalette.colorIndex];
+  var t = Cb[goldenPalette.closestReference];
+  var n = Db[goldenPalette.closestReference];
   var lightnessMaximum = 100;
   const lightnessMinimumStep = 1.7;
 
@@ -1776,7 +1776,7 @@ function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
 
       k < c && ((c = k), (d = goldenPalettes[paletteIndex]), (e = colorIndex));
     }
-  return {colors: d, colorIndex: e};
+  return {colors: d, closestReference: e};
 }
 
 function Rb(a) {
@@ -2102,7 +2102,7 @@ function kc(a) {
     .map(function (a, b) {
       var h = void 0 !== e && a.equals(e);
       if (0 > b || 9 < b)
-        throw new RangeError("colorIndex must be between 0 and 9, inclusive");
+        throw new RangeError("closestReference must be between 0 and 9, inclusive");
       return lc(a, h, 0 === b ? 50 : 100 * b, d, function () {
         return g(c, b);
       });
