@@ -1363,6 +1363,21 @@ var lab2hue = function (a, b) {
   return 0 <= a ? a : a + 360;
 };
 
+var GOLDEN_PALETTES2 = [
+  [
+    rgb2lab(hex2rgb('F7F8FA')),
+    rgb2lab(hex2rgb('F2F3F5')),
+    rgb2lab(hex2rgb('EDEEF0')),
+    rgb2lab(hex2rgb('E8E9EB')),
+    rgb2lab(hex2rgb('E3E4E5')),
+    rgb2lab(hex2rgb('DEDFE0')),
+    rgb2lab(hex2rgb('D9DADB')),
+    rgb2lab(hex2rgb('D4D5D6')),
+    rgb2lab(hex2rgb('CFD0D1')),
+    rgb2lab(hex2rgb('CACBCC')),
+  ]
+];
+
 var GOLDEN_PALETTES = [
   [
     new LABColor(94.67497003305085, 7.266715066863771, 1.000743882272359),
@@ -1661,8 +1676,6 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var deltaGoldenLightness = closestGoldenLchColor.lightness - sourceLchColor.lightness;
   var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
-  var t = Cb[goldenPalette.closestReference];
-  var n = Db[goldenPalette.closestReference];
   var lightnessMaximum = 100;
   const lightnessMinimumStep = 1.7;
 
@@ -1673,11 +1686,12 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
-    var lightness = goldenLabColor.lightness - (Cb[index] / t) * deltaGoldenLightness;
+    
+    var lightness = goldenLabColor.lightness - (Cb[index] / Cb[goldenPalette.closestReference]) * deltaGoldenLightness;
     lightness = Math.min(lightness, lightnessMaximum);
     lightness = minMax(lightness, 0, 100);
 
-    var chroma = isGoldenColorGreyInMiddle ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25);
+    var chroma = isGoldenColorGreyInMiddle ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / Db[goldenPalette.closestReference], 1.25);
     chroma = Math.max(0, chroma);
 
     var hue = (goldenLchColor.hue - deltaGoldenHue + 360) % 360;
