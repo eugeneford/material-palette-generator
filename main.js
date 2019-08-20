@@ -1657,7 +1657,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var closestGoldenLabColor = goldenColors[goldenPalette.closestReference];
   var closestGoldenLchColor = lab2lch(closestGoldenLabColor);
   var sourceLchColor = lab2lch(sourceLabColor);
-  var k = 30 > lab2lch(goldenColors[5]).chroma;
+  var isGoldenColorGreyInMiddle = 30 > lab2lch(goldenColors[5]).chroma;
   var deltaGoldenLightness = closestGoldenLchColor.lightness - sourceLchColor.lightness;
   var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
@@ -1677,7 +1677,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
     lightness = Math.min(lightness, lightnessMaximum);
     lightness = minMax(lightness, 0, 100);
 
-    var chroma = k ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25);
+    var chroma = isGoldenColorGreyInMiddle ? goldenLchColor.chroma - deltaGoldenChroma : goldenLchColor.chroma - deltaGoldenChroma * Math.min(Db[index] / n, 1.25);
     chroma = Math.max(0, chroma);
 
     var hue = (goldenLchColor.hue - deltaGoldenHue + 360) % 360;
