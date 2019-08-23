@@ -1365,17 +1365,32 @@ var lab2hue = function (a, b) {
 
 var GOLDEN_PALETTES2 = [
   [
-    rgb2lab(hex2rgb('F7F8FA')),
-    rgb2lab(hex2rgb('F2F3F5')),
-    rgb2lab(hex2rgb('EDEEF0')),
-    rgb2lab(hex2rgb('E8E9EB')),
-    rgb2lab(hex2rgb('E3E4E5')),
-    rgb2lab(hex2rgb('DEDFE0')),
-    rgb2lab(hex2rgb('D9DADB')),
-    rgb2lab(hex2rgb('D4D5D6')),
-    rgb2lab(hex2rgb('CFD0D1')),
-    rgb2lab(hex2rgb('CACBCC')),
-  ]
+    rgb2lab(hex2rgb('595959')),
+    rgb2lab(hex2rgb('545454')),
+    rgb2lab(hex2rgb('4F4F4F')),
+    rgb2lab(hex2rgb('474747')),
+    rgb2lab(hex2rgb('404040')),
+    rgb2lab(hex2rgb('383838')),
+    rgb2lab(hex2rgb('303030')),
+    rgb2lab(hex2rgb('292929')),
+    rgb2lab(hex2rgb('1F1F1F')),
+    rgb2lab(hex2rgb('121212')),
+  ],
+];
+
+var GOLDEN_PALETTES1 = [
+  [
+    rgb2lab(hex2rgb('FAFAFA')),
+    rgb2lab(hex2rgb('F5F5F5')),
+    rgb2lab(hex2rgb('EEEEEE')),
+    rgb2lab(hex2rgb('E0E0E0')),
+    rgb2lab(hex2rgb('D6D6D6')),
+    rgb2lab(hex2rgb('C9C9C9')),
+    rgb2lab(hex2rgb('BDBDBD')),
+    rgb2lab(hex2rgb('B0B0B0')),
+    rgb2lab(hex2rgb('A3A3A3')),
+    rgb2lab(hex2rgb('969696')),
+  ],
 ];
 
 var GOLDEN_PALETTES = [
@@ -1621,6 +1636,19 @@ var Cb = [ // Lightness something
   15.13738673,
   15.09818372
 ];
+// 979eac
+var Db1 = [ // Chroma something
+  1.762442714,
+  4.213532634,
+  7.395827458,
+  8.07174158,
+  9.89634504,
+  11.37591477,
+  12.27071136,
+  13.54160806,
+  14.35916727,
+  16.88410864
+];
 
 var Db = [ // Chroma something
   1.762442714,
@@ -1677,7 +1705,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
   var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
   var lightnessMaximum = 100;
-  const lightnessMinimumStep = 1.7;
+  const lightnessMinimumStep = 2;
 
   return goldenColors.map(function (goldenLabColor, index) {
     if (goldenLabColor === closestGoldenLabColor) {
@@ -1686,7 +1714,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES) {
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
-    
+
     var lightness = goldenLabColor.lightness - (Cb[index] / Cb[goldenPalette.closestReference]) * deltaGoldenLightness;
     lightness = Math.min(lightness, lightnessMaximum);
     lightness = minMax(lightness, 0, 100);
