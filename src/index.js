@@ -4,7 +4,7 @@ var minMax = function (a, b, c) {
 
 function checkRange(value, maxValue, label) {
   if (isNaN(value) || 0 > value || value > maxValue)
-    throw new RangeError(value + " for " + label + " is not between 0 and " + maxValue);
+    throw new RangeError(value + ' for ' + label + ' is not between 0 and ' + maxValue);
 }
 
 var ACCURACY = Math.pow(2, -16);
@@ -14,20 +14,20 @@ var RGBColor = function (red, green, blue, alpha = 1) {
   this.green = green;
   this.blue = blue;
   this.alpha = alpha;
-  checkRange(red, 1, "red");
-  checkRange(green, 1, "green");
-  checkRange(blue, 1, "blue");
-  checkRange(alpha, 1, "alpha");
+  checkRange(red, 1, 'red');
+  checkRange(green, 1, 'green');
+  checkRange(blue, 1, 'blue');
+  checkRange(alpha, 1, 'alpha');
 };
 
 RGBColor.prototype.toCSSValue = function () {
   return (
-    "rgba(" +
+    'rgba(' +
     100 * this.red +
-    "%, " +
+    '%, ' +
     100 * this.green +
-    "%, " +
-    (100 * this.blue + "%, " + this.alpha + ")")
+    '%, ' +
+    (100 * this.blue + '%, ' + this.alpha + ')')
   );
 };
 
@@ -36,7 +36,7 @@ var rgb2hex = function (rgbColor) {
     decimal2hex(Math.round(255 * rgbColor.red)) +
     decimal2hex(Math.round(255 * rgbColor.green)) +
     decimal2hex(Math.round(255 * rgbColor.blue)) +
-    (1 > rgbColor.alpha ? decimal2hex(Math.round(255 * rgbColor.alpha)) : "")
+    (1 > rgbColor.alpha ? decimal2hex(Math.round(255 * rgbColor.alpha)) : '')
   );
 };
 
@@ -61,7 +61,7 @@ var contrastRatio = function (rgbColor1, rgbColor2) {
       rgbColor1.red * rgbColor1.alpha + c.red * d,
       rgbColor1.green * rgbColor1.alpha + c.green * d,
       rgbColor1.blue * rgbColor1.alpha + c.blue * d,
-      rgbColor1.alpha + d
+      rgbColor1.alpha + d,
     );
   }
   rgbColor1 = 0.2126 * rgb2xyz(rgbColor1.red) + 0.7152 * rgb2xyz(rgbColor1.green) + 0.0722 * rgb2xyz(rgbColor1.blue);
@@ -113,18 +113,18 @@ var hsb2rgb = function (hsbColor) {
 
 var hex2rgb = function (hexColor) {
   if (!/^[a-fA-F0-9]{3,8}$/.test(hexColor))
-    throw Error("Invalid hex color string: " + hexColor);
+    throw Error('Invalid hex color string: ' + hexColor);
   if (3 === hexColor.length || 4 === hexColor.length)
     var b = /^(.)(.)(.)(.)?$/
       .exec(hexColor)
       .slice(1, 5)
       .map(function (a) {
-        return a ? a + a : "ff";
+        return a ? a + a : 'ff';
       });
   else if (6 === hexColor.length || 8 === hexColor.length)
     (b = /^(..)(..)(..)(..)?$/.exec(hexColor).slice(1, 5)),
-    void 0 === b[3] && (b[3] = "ff");
-  else throw Error("Invalid hex color string: " + hexColor);
+    void 0 === b[3] && (b[3] = 'ff');
+  else throw Error('Invalid hex color string: ' + hexColor);
 
   var red = hex2decimal(b[0]) / 255;
   var green = hex2decimal(b[1]) / 255;
@@ -138,13 +138,13 @@ var WHITE_COLOR = new RGBColor(1, 1, 1);
 var BLACK_COLOR = new RGBColor(0, 0, 0);
 
 function hex2decimal(hexColor) {
-  if (!/^[a-fA-F0-9]+$/.test(hexColor)) throw Error("Invalid hex string: " + hexColor);
+  if (!/^[a-fA-F0-9]+$/.test(hexColor)) throw Error('Invalid hex string: ' + hexColor);
   return parseInt(hexColor, 16);
 }
 
 function decimal2hex(decimal) {
   decimal = decimal.toString(16);
-  return 2 <= decimal.length ? decimal : "0" + decimal;
+  return 2 <= decimal.length ? decimal : '0' + decimal;
 }
 
 var HSLColor = function (hue, saturation, lightness, alpha = 1) {
@@ -152,30 +152,21 @@ var HSLColor = function (hue, saturation, lightness, alpha = 1) {
   this.saturation = saturation;
   this.lightness = lightness;
   this.alpha = alpha;
-  checkRange(hue, 360, "hue");
-  checkRange(saturation, 1, "saturation");
-  checkRange(lightness, 1, "lightness");
-  checkRange(alpha, 1, "alpha");
+  checkRange(hue, 360, 'hue');
+  checkRange(saturation, 1, 'saturation');
+  checkRange(lightness, 1, 'lightness');
+  checkRange(alpha, 1, 'alpha');
 };
 
 HSLColor.prototype.toCSSValue = function () {
   return (
-    "hsla(" +
+    'hsla(' +
     this.hue +
-    ", " +
+    ', ' +
     100 * this.saturation +
-    "%, " +
-    (100 * this.lightness + "%, " + this.alpha + ")")
+    '%, ' +
+    (100 * this.lightness + '%, ' + this.alpha + ')')
   );
-};
-
-var normalizeHSL = function (a) {
-  return {
-    hue: a.hue.toFixed(0),
-    saturation: String(Math.round(1e4 * a.saturation) / 100),
-    lightness: String(Math.round(1e4 * a.lightness) / 100),
-    alpha: String(Math.round(1e4 * a.alpha) / 100)
-  };
 };
 
 HSLColor.prototype.rotate = function (hueAdjustment) {
@@ -217,10 +208,10 @@ var HSBColor = function (hue, saturation, brightness, alpha = 1) {
   this.saturation = saturation;
   this.value = brightness;
   this.alpha = alpha;
-  checkRange(hue, 360, "hue");
-  checkRange(saturation, 1, "saturation");
-  checkRange(brightness, 1, "value");
-  checkRange(alpha, 1, "alpha");
+  checkRange(hue, 360, 'hue');
+  checkRange(saturation, 1, 'saturation');
+  checkRange(brightness, 1, 'value');
+  checkRange(alpha, 1, 'alpha');
 };
 
 var rgb2hsb = function (rgbColor) {
@@ -251,8 +242,8 @@ var LABColor = function (lightness, a, b, alpha = 1) {
   this.a = a;
   this.b = b;
   this.alpha = alpha;
-  checkRange(lightness, Number.MAX_VALUE, "lightness");
-  checkRange(alpha, 1, "alpha");
+  checkRange(lightness, Number.MAX_VALUE, 'lightness');
+  checkRange(alpha, 1, 'alpha');
 };
 
 LABColor.prototype.equals = function (a) {
@@ -276,7 +267,7 @@ var rgb2lab = function (rgbColor) {
     (xyz2lab((0.4124564 * red + 0.3575761 * green + 0.1804375 * blue) / 0.95047) - xyz2lab(e)),
     200 *
     (xyz2lab(e) - xyz2lab((0.0193339 * red + 0.119192 * green + 0.9503041 * blue) / 1.08883)),
-    rgbColor.alpha
+    rgbColor.alpha,
   );
 };
 
@@ -285,10 +276,10 @@ var LCHColor = function (lightness, chroma, hue, alpha = 1) {
   this.chroma = chroma;
   this.hue = hue;
   this.alpha = alpha;
-  checkRange(lightness, Number.MAX_VALUE, "lightness");
-  checkRange(chroma, Number.MAX_VALUE, "chroma");
-  checkRange(hue, 360, "hue");
-  checkRange(alpha, 1, "alpha");
+  checkRange(lightness, Number.MAX_VALUE, 'lightness');
+  checkRange(chroma, Number.MAX_VALUE, 'chroma');
+  checkRange(hue, 360, 'hue');
+  checkRange(alpha, 1, 'alpha');
 };
 
 LCHColor.prototype.equals = function (a) {
@@ -305,7 +296,7 @@ var lab2lch = function (labColor) {
     labColor.lightness,
     Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2)),
     ((180 * Math.atan2(labColor.b, labColor.a)) / Math.PI + 360) % 360,
-    labColor.alpha
+    labColor.alpha,
   );
 };
 
@@ -430,7 +421,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(51.66348502954747, 64.7487785020625, 43.244876694855286),
     new LABColor(47.09455666350969, 62.29836039074277, 40.67775424698388),
     new LABColor(43.77122063388739, 60.28633509183384, 40.31444686692952),
-    new LABColor(39.555187078007386, 58.703681355389975, 41.66495027798629)
+    new LABColor(39.555187078007386, 58.703681355389975, 41.66495027798629),
   ],
   [
     new LABColor(92.68053776327665, 9.515385232804263, -0.8994072969754852),
@@ -442,7 +433,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(47.27738650144558, 70.77855776427805, 11.70434273264508),
     new LABColor(42.58424189486517, 65.5411953138309, 7.595596439803797),
     new LABColor(37.977492407254836, 60.74362621842075, 2.9847124951453474),
-    new LABColor(29.699290034849604, 51.90485023721311, -4.830186634107636)
+    new LABColor(29.699290034849604, 51.90485023721311, -4.830186634107636),
   ],
   [
     new LABColor(92.4362655169016, 7.542927467702299, -6.039842848605881),
@@ -454,7 +445,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(37.690702208992185, 61.13762767732481, -49.384803274243026),
     new LABColor(33.56291870731981, 57.637381239254104, -51.39557249855828),
     new LABColor(29.865391314234515, 54.29737439901333, -52.6601973712463),
-    new LABColor(23.16724235420436, 48.51764437280498, -55.16267949015293)
+    new LABColor(23.16724235420436, 48.51764437280498, -55.16267949015293),
   ],
   [
     new LABColor(92.49103426017201, 4.712320025752947, -6.532868071709763),
@@ -466,7 +457,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(34.189791237562616, 46.60426065139123, -59.53961627676729),
     new LABColor(30.52713367338361, 46.01498224754519, -60.19975052509064),
     new LABColor(27.44585524877222, 44.96180431854785, -60.46395810756433),
-    new LABColor(21.98627670328218, 44.29296076245473, -60.93653655172098)
+    new LABColor(21.98627670328218, 44.29296076245473, -60.93653655172098),
   ],
   [
     new LABColor(92.86314411983918, 1.5318147061061937, -6.025243528950552),
@@ -478,7 +469,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(35.15116453901552, 26.231812080381168, -54.53700978785404),
     new LABColor(31.080429988007957, 27.07394930110124, -53.97505274579958),
     new LABColor(27.026672080454922, 28.165266427558983, -53.28987325482218),
-    new LABColor(19.751201587921678, 30.60784576895101, -52.13866519297474)
+    new LABColor(19.751201587921678, 30.60784576895101, -52.13866519297474),
   ],
   [
     new LABColor(94.70682457348717, -2.835484735987326, -6.978044694792707),
@@ -490,7 +481,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(55.62267676922188, 4.998684384486918, -55.02164729429915),
     new LABColor(49.27006645904875, 8.470398370314381, -54.494796838457546),
     new LABColor(43.16828856394358, 11.968483076143844, -53.972567377977974),
-    new LABColor(32.17757793894193, 18.96054990229354, -53.45146365049088)
+    new LABColor(32.17757793894193, 18.96054990229354, -53.45146365049088),
   ],
   [
     new LABColor(95.35713467762652, -4.797149155388203, -6.550002550504308),
@@ -502,7 +493,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(60.88357994308973, -7.252819027184943, -46.67753731595634),
     new LABColor(54.26166495426166, -3.8141836897908066, -45.97939475762498),
     new LABColor(48.10661895072673, -1.378998784464347, -44.34466750206778),
-    new LABColor(36.34401147057282, 5.067812404713545, -43.11786257561915)
+    new LABColor(36.34401147057282, 5.067812404713545, -43.11786257561915),
   ],
   [
     new LABColor(95.69295154599753, -6.898716127301141, -3.994284229654421),
@@ -514,7 +505,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(64.44491716553777, -29.08337434584457, -21.154935769156214),
     new LABColor(56.99816432961103, -27.31081477279451, -17.86988815767443),
     new LABColor(49.75464182255671, -25.335383503694242, -15.024722591662787),
-    new LABColor(36.52725894264432, -22.129641744194515, -9.176159146894303)
+    new LABColor(36.52725894264432, -22.129641744194515, -9.176159146894303),
   ],
   [
     new LABColor(94.18453941589918, -6.08351703428972, -1.5488916051161983),
@@ -526,7 +517,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(51.059149495197715, -34.65019160301408, -1.3910484300432513),
     new LABColor(45.269081019218405, -32.13244775422941, -0.4526371852697775),
     new LABColor(39.36899076059384, -29.25264468583161, -0.03562564673170732),
-    new LABColor(28.58363043701477, -24.585465516136413, 1.8037402162492389)
+    new LABColor(28.58363043701477, -24.585465516136413, 1.8037402162492389),
   ],
   [
     new LABColor(95.30530183565223, -6.430415645739263, 4.292950594459599),
@@ -538,7 +529,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(58.777960853461366, -46.1153692478013, 37.838910745225576),
     new LABColor(52.41108688974904, -43.21761792485762, 35.62250659009424),
     new LABColor(46.2813873076426, -40.25816227675361, 33.32343229338761),
-    new LABColor(34.685655305814514, -34.75343878510312, 28.866739034359767)
+    new LABColor(34.685655305814514, -34.75343878510312, 28.866739034359767),
   ],
   [
     new LABColor(96.70518169355954, -4.929987845095463, 6.397084523168894),
@@ -550,7 +541,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(67.21532310272079, -36.56304870773486, 50.49629051268894),
     new LABColor(59.91051142210195, -35.77011466063357, 46.56465847976187),
     new LABColor(52.51015841084511, -34.47903440699235, 42.20723868724268),
-    new LABColor(39.41191983353878, -32.80460974352642, 35.255490585630014)
+    new LABColor(39.41191983353878, -32.80460974352642, 35.255490585630014),
   ],
   [
     new LABColor(97.99506057883428, -4.059632482741494, 9.355797602381521),
@@ -562,7 +553,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(78.27915100603997, -21.181850056402496, 68.82763412297965),
     new LABColor(70.82385811892824, -17.788148932525672, 64.00327817988128),
     new LABColor(62.936867012868035, -13.697412111684903, 58.513000509287835),
-    new LABColor(49.498610881452535, -6.485230564384715, 49.67432722833751)
+    new LABColor(49.498610881452535, -6.485230564384715, 49.67432722833751),
   ],
   [
     new LABColor(98.93885129752759, -3.0098470288543178, 10.765736833790008),
@@ -574,7 +565,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(87.12188349168609, -2.3764300099239355, 78.14868195373407),
     new LABColor(80.96200442419905, 8.849333792729064, 75.05050700092679),
     new LABColor(75.00342770718086, 20.340173566879283, 72.24841925958934),
-    new LABColor(65.48207757431567, 39.647064970476094, 68.34872841768654)
+    new LABColor(65.48207757431567, 39.647064970476094, 68.34872841768654),
   ],
   [
     new LABColor(97.5642392074337, -1.445525639405032, 11.881254316297674),
@@ -586,7 +577,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(78.17240973804697, 16.628512886531887, 81.09358318806208),
     new LABColor(73.80899654381052, 26.53614315250874, 78.21754052181723),
     new LABColor(70.1134511665764, 35.3007623359744, 75.87510992138593),
-    new LABColor(63.86460405565717, 50.94648214505959, 72.17815682124423)
+    new LABColor(63.86460405565717, 50.94648214505959, 72.17815682124423),
   ],
   [
     new LABColor(96.30459517801387, 0.923151172282477, 10.598439446083074),
@@ -598,7 +589,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(68.94724338946975, 35.22014778433863, 74.88425044595111),
     new LABColor(64.83017495535229, 40.91200730099703, 71.9596053545428),
     new LABColor(60.8534207471871, 46.41483590510681, 69.18061963415211),
-    new LABColor(54.77571742962287, 55.282751019360035, 65.10193403547922)
+    new LABColor(54.77571742962287, 55.282751019360035, 65.10193403547922),
   ],
   [
     new LABColor(93.69219844671957, 5.763979334358293, 3.1700162796469034),
@@ -610,7 +601,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(57.28707915232363, 60.3250664308812, 60.07341536376447),
     new LABColor(53.810052616293845, 58.36760943780162, 58.19586806694884),
     new LABColor(50.301352405105874, 56.40104898089937, 55.924141992404344),
-    new LABColor(43.86477994548343, 52.970887703910726, 52.30067989225532)
+    new LABColor(43.86477994548343, 52.970887703910726, 52.30067989225532),
   ],
   [
     new LABColor(93.29864888069987, 0.9915456090475727, 1.442353076378411),
@@ -622,7 +613,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(35.600996682015754, 12.40352847757295, 12.10432183902449),
     new LABColor(30.084271265759952, 11.317148149878081, 10.547484304296217),
     new LABColor(24.555014696416578, 10.816613316782464, 8.506555306791984),
-    new LABColor(18.35055226514404, 10.225725550338765, 7.058582769882571)
+    new LABColor(18.35055226514404, 10.225725550338765, 7.058582769882571),
   ],
   [
     new LABColor(98.27202740980219, -1.6418393644634932e-5, 6.567357457853973e-6),
@@ -634,7 +625,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(49.238989620828065, -9.373417431124409e-6, 3.7493669724497636e-6),
     new LABColor(41.14266843804848, -8.210152946386273e-6, 3.2840611896567395e-6),
     new LABColor(27.974857206003705, -6.318226192236764e-6, 2.5272904768947058e-6),
-    new LABColor(12.740011331302725, -4.129311698131133e-6, 1.6517246792524531e-6)
+    new LABColor(12.740011331302725, -4.129311698131133e-6, 1.6517246792524531e-6),
   ],
   [
     new LABColor(94.27665212516236, -0.637571046109342, -1.313515378996688),
@@ -646,7 +637,7 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(44.85917867647632, -6.411990559239578, -9.74511982878765),
     new LABColor(36.92458930566504, -5.319878610845596, -8.341943474561553),
     new LABColor(29.115334784637618, -4.168907828645069, -6.8629962199973304),
-    new LABColor(19.958338450799914, -3.3116721453186617, -5.4486142104736786)
+    new LABColor(19.958338450799914, -3.3116721453186617, -5.4486142104736786),
   ],
 ];
 
@@ -660,7 +651,7 @@ var DEFAULT_LIGHTNESS_TOLERANCE = [
   15.46585818,
   15.09779227,
   15.13738673,
-  15.09818372
+  15.09818372,
 ];
 
 var REDUCED_CHROMA_TOLERANCE = [
@@ -673,7 +664,7 @@ var REDUCED_CHROMA_TOLERANCE = [
   12.27071136,
   13.54160806,
   14.35916727,
-  16.88410864
+  16.88410864,
 ];
 
 var DEFAULT_CHROMA_TOLERANCE = [
@@ -686,7 +677,7 @@ var DEFAULT_CHROMA_TOLERANCE = [
   16.27071136,
   16.54160806,
   17.35916727,
-  19.88410864
+  19.88410864,
 ];
 
 var lightTextEmphasis = {
@@ -698,7 +689,7 @@ var lightTextEmphasis = {
 var darkTextEmphasis = {
   HIGH: new RGBColor(0, 0, 0, 0.87),
   MEDIUM: new RGBColor(0, 0, 0, 0.6),
-  DISABLED: new RGBColor(0, 0, 0, 0.38)
+  DISABLED: new RGBColor(0, 0, 0, 0.38),
 };
 
 function getTextColor(rgbColor) {
@@ -756,7 +747,7 @@ function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
                 : r - n - 360) /
             2) *
             Math.PI) /
-          180
+          180,
         );
 
       m =
@@ -786,22 +777,22 @@ function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
           (1 +
             (0.015 * Math.pow(l - 50, 2)) /
             Math.sqrt(20 + Math.pow(l - 50, 2))),
-          2
+          2,
         ) +
         Math.pow(t / (1 * q), 2) +
         Math.pow(N / (1 * H), 2) +
         (t / (1 * q)) *
         Math.sqrt(Math.pow(ja, 7) / (Math.pow(ja, 7) + Math.pow(25, 7))) *
         Math.sin(
-          (60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI) / 180
+          (60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI) / 180,
         ) *
         -2 *
-        (N / (1 * H))
+        (N / (1 * H)),
       );
 
       k < c && ((c = k), (d = goldenPalettes[paletteIndex]), (e = colorIndex));
     }
-  return {colors: d, closestReference: e};
+  return { colors: d, closestReference: e };
 }
 
 function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
@@ -843,19 +834,19 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
   });
 }
 
-function generateAccentPalette(hexColor) {
+export function generateAccentPalette(hexColor) {
   const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
   const rgbPalette = generatePalette(rgbColor, GOLDEN_ACCENT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
   return rgbPalette.map(color => rgb2hex(color));
 }
 
-function generateLightPalette(hexColor) {
+export function generateLightPalette(hexColor) {
   const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
   const rgbPalette = generatePalette(rgbColor, GOLDEN_LIGHT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, REDUCED_CHROMA_TOLERANCE);
   return rgbPalette.map(color => rgb2hex(color));
 }
 
-function generateDarkPalette(hexColor) {
+export function generateDarkPalette(hexColor) {
   const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
   const rgbPalette = generatePalette(rgbColor, GOLDEN_DARK_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
   return rgbPalette.map(color => rgb2hex(color));

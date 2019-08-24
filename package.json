@@ -1,0 +1,47 @@
+{
+  "name": "anodum",
+  "version": "1.0.0",
+  "description": "Original material design palette generator",
+  "main": "dist/palette-generator.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugeneford/anodum.git"
+  },
+  "scripts": {
+    "build": "webpack",
+    "build-watch": "webpack --watch",
+    "test": "karma start --single-run",
+    "test-watch": "karma start",
+    "lint": "eslint src/*.js src/*.jsx test/*.js"
+  },
+  "keywords": [
+    "colors",
+    "palette",
+    "generator"
+  ],
+  "author": "Eugene Ford",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "coveralls": "^3.0.0",
+    "eslint": "^4.12.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.5.1",
+    "istanbul-instrumenter-loader": "^3.0.0",
+    "jasmine-core": "^2.7.0",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage-istanbul-reporter": "^1.3.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-webpack": "^2.0.6",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "webpack": "^3.9.1"
+  }
+}
