@@ -12,7 +12,6 @@ module.exports = {
     loaders: [{
       test: /\.jsx?$/,
       include: [
-        path.resolve(__dirname, 'src/'),
         path.resolve(__dirname, 'demo/'),
       ],
       loader: 'babel-loader'
