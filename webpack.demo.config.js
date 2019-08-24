@@ -1,9 +1,9 @@
 path = require('path');
 
 module.exports = {
-  entry: './demo/index-src',
+  entry: './demo/index',
   output: {
-    filename: './demo/index.js'
+    filename: './demo/bundle.js'
   },
 
   devtool: 'source-map',
