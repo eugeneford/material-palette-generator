@@ -1,9 +1,9 @@
 path = require('path');
 
 module.exports = {
-  entry: './demo/index',
+  entry: './docs/index',
   output: {
-    filename: './demo/bundle.js'
+    filename: './docs/bundle.js'
   },
 
   devtool: 'source-map',
@@ -12,7 +12,7 @@ module.exports = {
     loaders: [{
       test: /\.jsx?$/,
       include: [
-        path.resolve(__dirname, 'demo/'),
+        path.resolve(__dirname, 'docs/'),
       ],
       loader: 'babel-loader'
     }]
