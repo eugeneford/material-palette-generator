@@ -152,7 +152,7 @@ class App extends React.Component {
   render() {
     const { userInput, sourceColor } = this.state;
     const lchColor = hex2lch(sourceColor);
-    const isDark = lchColor[0] <= 37.8;
+    const isDark = lchColor[0] <= 38;
     const isLight = lchColor[0] >= 62;
     const isGrey = lchColor[1] <= 30;
 

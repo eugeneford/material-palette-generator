@@ -755,7 +755,7 @@ var App = function (_React$Component3) {
           sourceColor = _state.sourceColor;
 
       var lchColor = (0, _convertColors.hex2lch)(sourceColor);
-      var isDark = lchColor[0] <= 37.8;
+      var isDark = lchColor[0] <= 38;
       var isLight = lchColor[0] >= 62;
       var isGrey = lchColor[1] <= 30;
 
