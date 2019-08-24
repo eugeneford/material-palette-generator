@@ -75,7 +75,8 @@ class Palette extends React.Component {
             const whiteRatio = contrast.ratio(`#${color}`, '#fff');
             const darkRatio = contrast.ratio(`#${color}`, '#000');
 
-            const cellClass = `color-palette__cell ${color === sourceColor ? 'color-palette__cell--selected' : ''}`;
+            const isSelected = color.toUpperCase() === sourceColor.toUpperCase();
+            const cellClass = `color-palette__cell ${ isSelected ? 'color-palette__cell--selected' : ''}`;
             const cellStyle = {
               backgroundColor: `#${color}`,
               color: whiteRatio > darkRatio ? '#fff' : '#000',
