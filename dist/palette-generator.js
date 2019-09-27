@@ -75,14 +75,29 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["generateAccentPalette"] = generateAccentPalette;
-/* harmony export (immutable) */ __webpack_exports__["generateLightPalette"] = generateLightPalette;
-/* harmony export (immutable) */ __webpack_exports__["generateDarkPalette"] = generateDarkPalette;
-var minMax = function (a, b, c) {
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.rgb2hex = rgb2hex;
+exports.hsl2rgb = hsl2rgb;
+exports.hsb2rgb = hsb2rgb;
+exports.hex2rgb = hex2rgb;
+exports.rgb2hsl = rgb2hsl;
+exports.hsb2hsl = hsb2hsl;
+exports.rgb2hsb = rgb2hsb;
+exports.hsl2hsb = hsl2hsb;
+exports.rgb2lab = rgb2lab;
+exports.lab2lch = lab2lch;
+exports.lch2lab = lch2lab;
+exports.generateAccentPalette = generateAccentPalette;
+exports.generateLightPalette = generateLightPalette;
+exports.generateDarkPalette = generateDarkPalette;
+var minMax = function minMax(a, b, c) {
   return Math.min(Math.max(a, b), c);
 };
 
@@ -92,7 +107,9 @@ function checkRange(value, maxValue, label) {
 
 var ACCURACY = Math.pow(2, -16);
 
-var RGBColor = function (red, green, blue, alpha = 1) {
+var RGBColor = function RGBColor(red, green, blue) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.red = red;
   this.green = green;
   this.blue = blue;
@@ -107,19 +124,19 @@ RGBColor.prototype.toCSSValue = function () {
   return 'rgba(' + 100 * this.red + '%, ' + 100 * this.green + '%, ' + (100 * this.blue + '%, ' + this.alpha + ')');
 };
 
-var rgb2hex = function (rgbColor) {
+function rgb2hex(rgbColor) {
   return decimal2hex(Math.round(255 * rgbColor.red)) + decimal2hex(Math.round(255 * rgbColor.green)) + decimal2hex(Math.round(255 * rgbColor.blue)) + (1 > rgbColor.alpha ? decimal2hex(Math.round(255 * rgbColor.alpha)) : '');
-};
+}
 
 RGBColor.prototype.equals = function (rgbColor) {
   return Math.abs(this.red - rgbColor.red) < ACCURACY && Math.abs(this.green - rgbColor.green) < ACCURACY && Math.abs(this.blue - rgbColor.blue) < ACCURACY && Math.abs(this.alpha - rgbColor.alpha) < ACCURACY;
 };
 
-var normalizeRGB = function (rgbColor) {
+var normalizeRGB = function normalizeRGB(rgbColor) {
   return 1 - rgbColor.alpha < ACCURACY ? rgbColor : new RGBColor(rgbColor.red, rgbColor.green, rgbColor.blue);
 };
 
-var contrastRatio = function (rgbColor1, rgbColor2) {
+var contrastRatio = function contrastRatio(rgbColor1, rgbColor2) {
   var c = normalizeRGB(rgbColor2);
   if (!(1 - rgbColor1.alpha < ACCURACY)) {
     var d = c.alpha * (1 - rgbColor1.alpha);
@@ -130,7 +147,7 @@ var contrastRatio = function (rgbColor1, rgbColor2) {
   return rgbColor1 >= rgbColor2 ? (rgbColor1 + 0.05) / (rgbColor2 + 0.05) : (rgbColor2 + 0.05) / (rgbColor1 + 0.05);
 };
 
-var kb = function (a, b, c, d) {
+var kb = function kb(a, b, c, d) {
   var e = d,
       g = d;
   a = a % 360 / 60;
@@ -162,17 +179,17 @@ var kb = function (a, b, c, d) {
   return new RGBColor(e, g, d, b);
 };
 
-var hsl2rgb = function (hslColor) {
+function hsl2rgb(hslColor) {
   var b = (1 - Math.abs(2 * hslColor.lightness - 1)) * hslColor.saturation;
   return kb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
-};
+}
 
-var hsb2rgb = function (hsbColor) {
+function hsb2rgb(hsbColor) {
   var b = hsbColor.value * hsbColor.saturation;
   return kb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
-};
+}
 
-var hex2rgb = function (hexColor) {
+function hex2rgb(hexColor) {
   if (!/^[a-fA-F0-9]{3,8}$/.test(hexColor)) throw Error('Invalid hex color string: ' + hexColor);
   if (3 === hexColor.length || 4 === hexColor.length) var b = /^(.)(.)(.)(.)?$/.exec(hexColor).slice(1, 5).map(function (a) {
     return a ? a + a : 'ff';
@@ -199,7 +216,9 @@ function decimal2hex(decimal) {
   return 2 <= decimal.length ? decimal : '0' + decimal;
 }
 
-var HSLColor = function (hue, saturation, lightness, alpha = 1) {
+var HSLColor = function HSLColor(hue, saturation, lightness) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.hue = hue;
   this.saturation = saturation;
   this.lightness = lightness;
@@ -218,7 +237,7 @@ HSLColor.prototype.rotate = function (hueAdjustment) {
   return new HSLColor((this.hue + hueAdjustment + 360) % 360, this.saturation, this.lightness, this.alpha);
 };
 
-var rgb2hsl = function (rgbColor) {
+function rgb2hsl(rgbColor) {
   var b = Math.max(rgbColor.red, rgbColor.green, rgbColor.blue),
       c = Math.min(rgbColor.red, rgbColor.green, rgbColor.blue),
       d = 0,
@@ -227,17 +246,19 @@ var rgb2hsl = function (rgbColor) {
   b - c > ACCURACY && (b === rgbColor.red ? d = 60 * (rgbColor.green - rgbColor.blue) / (b - c) : b === rgbColor.green ? d = 60 * (rgbColor.blue - rgbColor.red) / (b - c) + 120 : b === rgbColor.blue && (d = 60 * (rgbColor.red - rgbColor.green) / (b - c) + 240), e = 0 < g && 0.5 >= g ? minMax((b - c) / (2 * g), 0, 1) : minMax((b - c) / (2 - 2 * g), 0, 1));
   d = Math.round(d + 360) % 360;
   return new HSLColor(d, e, g, rgbColor.alpha);
-};
+}
 
-var hsb2hsl = function (hsbColor) {
+function hsb2hsl(hsbColor) {
   var b = minMax((2 - hsbColor.saturation) * hsbColor.value / 2, 0, 1),
       c = 0;
   0 < b && 1 > b && (c = hsbColor.saturation * hsbColor.value / (0.5 > b ? 2 * b : 2 - 2 * b));
   c = minMax(c, 0, 1);
   return new HSLColor(hsbColor.hue, c, b, hsbColor.alpha);
-};
+}
 
-var HSBColor = function (hue, saturation, brightness, alpha = 1) {
+var HSBColor = function HSBColor(hue, saturation, brightness) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.hue = hue;
   this.saturation = saturation;
   this.value = brightness;
@@ -248,7 +269,7 @@ var HSBColor = function (hue, saturation, brightness, alpha = 1) {
   checkRange(alpha, 1, 'alpha');
 };
 
-var rgb2hsb = function (rgbColor) {
+function rgb2hsb(rgbColor) {
   var b = Math.max(rgbColor.red, rgbColor.green, rgbColor.blue);
   var c = Math.min(rgbColor.red, rgbColor.green, rgbColor.blue);
   var d = 0;
@@ -259,13 +280,15 @@ var rgb2hsb = function (rgbColor) {
   return new HSBColor(d, e, b, rgbColor.alpha);
 };
 
-var hsl2hsb = function (hslColor) {
+function hsl2hsb(hslColor) {
   var b = hslColor.saturation * (0.5 > hslColor.lightness ? hslColor.lightness : 1 - hslColor.lightness),
       c = minMax(hslColor.lightness + b, 0, 1);
   return new HSBColor(hslColor.hue, minMax(0 < c ? 2 * b / c : 0, 0, 1), c, hslColor.alpha);
 };
 
-var LABColor = function (lightness, a, b, alpha = 1) {
+var LABColor = function LABColor(lightness, a, b) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.lightness = lightness;
   this.a = a;
   this.b = b;
@@ -278,7 +301,7 @@ LABColor.prototype.equals = function (a) {
   return 1e-4 > Math.abs(this.lightness - a.lightness) && 1e-4 > Math.abs(this.a - a.a) && 1e-4 > Math.abs(this.b - a.b) && Math.abs(this.alpha - a.alpha) < ACCURACY;
 };
 
-var rgb2lab = function (rgbColor) {
+function rgb2lab(rgbColor) {
   var red = rgb2xyz(rgbColor.red);
   var green = rgb2xyz(rgbColor.green);
   var blue = rgb2xyz(rgbColor.blue);
@@ -287,7 +310,9 @@ var rgb2lab = function (rgbColor) {
   return new LABColor(116 * xyz2lab(e) - 16, 500 * (xyz2lab((0.4124564 * red + 0.3575761 * green + 0.1804375 * blue) / 0.95047) - xyz2lab(e)), 200 * (xyz2lab(e) - xyz2lab((0.0193339 * red + 0.119192 * green + 0.9503041 * blue) / 1.08883)), rgbColor.alpha);
 };
 
-var LCHColor = function (lightness, chroma, hue, alpha = 1) {
+var LCHColor = function LCHColor(lightness, chroma, hue) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.lightness = lightness;
   this.chroma = chroma;
   this.hue = hue;
@@ -302,14 +327,14 @@ LCHColor.prototype.equals = function (a) {
   return 1e-4 > Math.abs(this.lightness - a.lightness) && 1e-4 > Math.abs(this.chroma - a.chroma) && 1e-4 > Math.abs(this.hue - a.hue) && Math.abs(this.alpha - a.alpha) < ACCURACY;
 };
 
-var lab2lch = function (labColor) {
+function lab2lch(labColor) {
   return new LCHColor(labColor.lightness, Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2)), (180 * Math.atan2(labColor.b, labColor.a) / Math.PI + 360) % 360, labColor.alpha);
-};
+}
 
-var lch2lab = function (lchColor) {
-  const hr = lchColor.hue / 360 * 2 * Math.PI;
-  const a = lchColor.chroma * Math.cos(hr);
-  const b = lchColor.chroma * Math.sin(hr);
+function lch2lab(lchColor) {
+  var hr = lchColor.hue / 360 * 2 * Math.PI;
+  var a = lchColor.chroma * Math.cos(hr);
+  var b = lchColor.chroma * Math.sin(hr);
 
   return new LABColor(lchColor.lightness, a, b, lchColor.alpha);
 };
@@ -319,20 +344,20 @@ function rgb2xyz(x) {
 }
 
 function xyz2rgb(xyzColor) {
-  let r;
-  let g;
-  let b;
+  var r = void 0;
+  var g = void 0;
+  var b = void 0;
 
   r = xyzColor.x * 3.2404542 + xyzColor.y * -1.5371385 + xyzColor.z * -0.4985314;
   g = xyzColor.x * -0.969266 + xyzColor.y * 1.8760108 + xyzColor.z * 0.041556;
   b = xyzColor.x * 0.0556434 + xyzColor.y * -0.2040259 + xyzColor.z * 1.0572252;
 
   // Assume sRGB
-  r = r > 0.0031308 ? 1.055 * r ** (1.0 / 2.4) - 0.055 : r * 12.92;
+  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1.0 / 2.4) - 0.055 : r * 12.92;
 
-  g = g > 0.0031308 ? 1.055 * g ** (1.0 / 2.4) - 0.055 : g * 12.92;
+  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1.0 / 2.4) - 0.055 : g * 12.92;
 
-  b = b > 0.0031308 ? 1.055 * b ** (1.0 / 2.4) - 0.055 : b * 12.92;
+  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1.0 / 2.4) - 0.055 : b * 12.92;
 
   r = Math.min(Math.max(0, r), 1);
   g = Math.min(Math.max(0, g), 1);
@@ -342,14 +367,16 @@ function xyz2rgb(xyzColor) {
 }
 
 function xyz2lab(t) {
-  const t0 = 4 / 29;
-  const t1 = 6 / 29;
-  const t2 = 3 * Math.pow(t1, 2);
-  const t3 = Math.pow(t1, 3);
+  var t0 = 4 / 29;
+  var t1 = 6 / 29;
+  var t2 = 3 * Math.pow(t1, 2);
+  var t3 = Math.pow(t1, 3);
   return t > t3 ? Math.pow(t, 1 / 3) : t / t2 + t0;
 }
 
-var XYZColor = function (x, y, z, alpha = 1) {
+var XYZColor = function XYZColor(x, y, z) {
+  var alpha = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+
   this.x = x;
   this.y = y;
   this.z = z;
@@ -357,17 +384,17 @@ var XYZColor = function (x, y, z, alpha = 1) {
 };
 
 function lab2xyz(labColor) {
-  let x;
-  let y;
-  let z;
+  var x = void 0;
+  var y = void 0;
+  var z = void 0;
 
   y = (labColor.lightness + 16) / 116;
   x = labColor.a / 500 + y;
   z = y - labColor.b / 200;
 
-  const y2 = y ** 3;
-  const x2 = x ** 3;
-  const z2 = z ** 3;
+  var y2 = Math.pow(y, 3);
+  var x2 = Math.pow(x, 3);
+  var z2 = Math.pow(z, 3);
 
   y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
   x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
@@ -380,7 +407,7 @@ function lab2xyz(labColor) {
   return new XYZColor(x, y, z, labColor.alpha);
 }
 
-var lab2hue = function (a, b) {
+var lab2hue = function lab2hue(a, b) {
   if (1e-4 > Math.abs(a) && 1e-4 > Math.abs(b)) return 0;
   a = 180 * Math.atan2(a, b) / Math.PI;
   return 0 <= a ? a : a + 360;
@@ -428,43 +455,50 @@ function getTextColor(rgbColor) {
   }
 }
 
-function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
-  for (var c = Infinity, d = goldenPalettes[0], e = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++) for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < c; colorIndex++) {
-    var k = goldenPalettes[paletteIndex][colorIndex];
-    var l = (k.lightness + labColor.lightness) / 2;
-    var m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2));
-    var q = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
-    var t = (m + q) / 2;
+function findClosestGoldenPalette(labColor) {
+  var goldenPalettes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : GOLDEN_PALETTES;
 
-    t = 0.5 * (1 - Math.sqrt(Math.pow(t, 7) / (Math.pow(t, 7) + Math.pow(25, 7))));
+  for (var c = Infinity, d = goldenPalettes[0], e = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++) {
+    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < c; colorIndex++) {
+      var k = goldenPalettes[paletteIndex][colorIndex];
+      var l = (k.lightness + labColor.lightness) / 2;
+      var m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2));
+      var q = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
+      var t = (m + q) / 2;
 
-    var n = k.a * (1 + t);
-    var r = labColor.a * (1 + t);
-    var N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2));
-    var H = Math.sqrt(Math.pow(r, 2) + Math.pow(labColor.b, 2));
+      t = 0.5 * (1 - Math.sqrt(Math.pow(t, 7) / (Math.pow(t, 7) + Math.pow(25, 7))));
 
-    t = H - N;
+      var n = k.a * (1 + t);
+      var r = labColor.a * (1 + t);
+      var N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2));
+      var H = Math.sqrt(Math.pow(r, 2) + Math.pow(labColor.b, 2));
 
-    var ja = (N + H) / 2;
+      t = H - N;
 
-    n = lab2hue(k.b, n);
-    r = lab2hue(labColor.b, r);
-    N = 2 * Math.sqrt(N * H) * Math.sin((1e-4 > Math.abs(m) || 1e-4 > Math.abs(q) ? 0 : 180 >= Math.abs(r - n) ? r - n : r <= n ? r - n + 360 : r - n - 360) / 2 * Math.PI / 180);
+      var ja = (N + H) / 2;
 
-    m = 1e-4 > Math.abs(m) || 1e-4 > Math.abs(q) ? 0 : 180 >= Math.abs(r - n) ? (n + r) / 2 : 360 > n + r ? (n + r + 360) / 2 : (n + r - 360) / 2;
+      n = lab2hue(k.b, n);
+      r = lab2hue(labColor.b, r);
+      N = 2 * Math.sqrt(N * H) * Math.sin((1e-4 > Math.abs(m) || 1e-4 > Math.abs(q) ? 0 : 180 >= Math.abs(r - n) ? r - n : r <= n ? r - n + 360 : r - n - 360) / 2 * Math.PI / 180);
 
-    q = 1 + 0.045 * ja;
+      m = 1e-4 > Math.abs(m) || 1e-4 > Math.abs(q) ? 0 : 180 >= Math.abs(r - n) ? (n + r) / 2 : 360 > n + r ? (n + r + 360) / 2 : (n + r - 360) / 2;
 
-    H = 1 + 0.015 * ja * (1 - 0.17 * Math.cos((m - 30) * Math.PI / 180) + 0.24 * Math.cos(2 * m * Math.PI / 180) + 0.32 * Math.cos((3 * m + 6) * Math.PI / 180) - 0.2 * Math.cos((4 * m - 63) * Math.PI / 180));
+      q = 1 + 0.045 * ja;
 
-    k = Math.sqrt(Math.pow((labColor.lightness - k.lightness) / (1 + 0.015 * Math.pow(l - 50, 2) / Math.sqrt(20 + Math.pow(l - 50, 2))), 2) + Math.pow(t / (1 * q), 2) + Math.pow(N / (1 * H), 2) + t / (1 * q) * Math.sqrt(Math.pow(ja, 7) / (Math.pow(ja, 7) + Math.pow(25, 7))) * Math.sin(60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI / 180) * -2 * (N / (1 * H)));
+      H = 1 + 0.015 * ja * (1 - 0.17 * Math.cos((m - 30) * Math.PI / 180) + 0.24 * Math.cos(2 * m * Math.PI / 180) + 0.32 * Math.cos((3 * m + 6) * Math.PI / 180) - 0.2 * Math.cos((4 * m - 63) * Math.PI / 180));
 
-    k < c && (c = k, d = goldenPalettes[paletteIndex], e = colorIndex);
-  }
-  return { colors: d, closestReference: e };
+      k = Math.sqrt(Math.pow((labColor.lightness - k.lightness) / (1 + 0.015 * Math.pow(l - 50, 2) / Math.sqrt(20 + Math.pow(l - 50, 2))), 2) + Math.pow(t / (1 * q), 2) + Math.pow(N / (1 * H), 2) + t / (1 * q) * Math.sqrt(Math.pow(ja, 7) / (Math.pow(ja, 7) + Math.pow(25, 7))) * Math.sin(60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI / 180) * -2 * (N / (1 * H)));
+
+      k < c && (c = k, d = goldenPalettes[paletteIndex], e = colorIndex);
+    }
+  }return { colors: d, closestReference: e };
 }
 
-function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
+function generatePalette(sourceRgbColor) {
+  var goldenPalettes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : GOLDEN_ACCENT_PALETTES;
+  var lightnessTolerance = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_LIGHTNESS_TOLERANCE;
+  var chromaTolerance = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : DEFAULT_CHROMA_TOLERANCE;
+
   var sourceLabColor = rgb2lab(sourceRgbColor);
   var goldenPalette = findClosestGoldenPalette(sourceLabColor, goldenPalettes);
   var goldenColors = goldenPalette.colors;
@@ -476,7 +510,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
   var deltaGoldenChroma = closestGoldenLchColor.chroma - sourceLchColor.chroma;
   var deltaGoldenHue = closestGoldenLchColor.hue - sourceLchColor.hue;
   var lightnessMaximum = 100;
-  const lightnessMinimumStep = 2;
+  var lightnessMinimumStep = 2;
 
   return goldenColors.map(function (goldenLabColor, index) {
     if (goldenLabColor === closestGoldenLabColor) {
@@ -503,22 +537,16 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
   });
 }
 
-function generateAccentPalette(hexColor) {
-  const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
-  const rgbPalette = generatePalette(rgbColor, GOLDEN_ACCENT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
-  return rgbPalette.map(color => rgb2hex(color));
+function generateAccentPalette(rgbColor) {
+  return generatePalette(rgbColor, GOLDEN_ACCENT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
 }
 
-function generateLightPalette(hexColor) {
-  const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
-  const rgbPalette = generatePalette(rgbColor, GOLDEN_LIGHT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, REDUCED_CHROMA_TOLERANCE);
-  return rgbPalette.map(color => rgb2hex(color));
+function generateLightPalette(rgbColor) {
+  return generatePalette(rgbColor, GOLDEN_LIGHT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, REDUCED_CHROMA_TOLERANCE);
 }
 
-function generateDarkPalette(hexColor) {
-  const rgbColor = hsb2rgb(rgb2hsb(hex2rgb(hexColor)));
-  const rgbPalette = generatePalette(rgbColor, GOLDEN_DARK_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
-  return rgbPalette.map(color => rgb2hex(color));
+function generateDarkPalette(rgbColor) {
+  return generatePalette(rgbColor, GOLDEN_DARK_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
 }
 
 /***/ })

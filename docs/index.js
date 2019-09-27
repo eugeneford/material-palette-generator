@@ -53,17 +53,18 @@ class Palette extends React.Component {
 
   renderPalette() {
     const { type, sourceColor } = this.props;
+    const sourceRGBColor = Generator.hsb2rgb(Generator.rgb2hsb(Generator.hex2rgb(sourceColor)));
     let palette;
 
     switch (type) {
       case 'light':
-        palette = Generator.generateLightPalette(sourceColor);
+        palette = Generator.generateLightPalette(sourceRGBColor);
         break;
       case 'dark':
-        palette = Generator.generateDarkPalette(sourceColor);
+        palette = Generator.generateDarkPalette(sourceRGBColor);
         break;
       case 'accent':
-        palette = Generator.generateAccentPalette(sourceColor);
+        palette = Generator.generateAccentPalette(sourceRGBColor);
         break;
     }
 
@@ -72,22 +73,23 @@ class Palette extends React.Component {
         <div className="color-palette__label">{type}</div>
         <div className="color-palette__row">
           {palette.reverse().map((color, i) => {
-            const whiteRatio = contrast.ratio(`#${color}`, '#fff');
-            const darkRatio = contrast.ratio(`#${color}`, '#000');
+            const hexColor = Generator.rgb2hex(color);
+            const whiteRatio = contrast.ratio(`#${hexColor}`, '#fff');
+            const darkRatio = contrast.ratio(`#${hexColor}`, '#000');
 
-            const isSelected = color.toUpperCase() === sourceColor.toUpperCase();
+            const isSelected = color.equals(sourceRGBColor);
             const cellClass = `color-palette__cell ${ isSelected ? 'color-palette__cell--selected' : ''}`;
             const cellStyle = {
-              backgroundColor: `#${color}`,
+              backgroundColor: `#${hexColor}`,
               color: whiteRatio > darkRatio ? '#fff' : '#000',
             };
 
             return (
               <div key={i} style={cellStyle} className={cellClass} onClick={() => {
-                copyTextToClipboard(`#${color}`);
+                copyTextToClipboard(`#${hexColor}`);
               }}>
                 <div className="color-palette__swatch-label">P</div>
-                <div className="color-palette__cell-hex-value">#{color}</div>
+                <div className="color-palette__cell-hex-value">#{hexColor}</div>
               </div>
             );
           })}
