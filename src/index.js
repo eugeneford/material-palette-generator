@@ -873,7 +873,7 @@ function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
   return { colors: closestGoldenPallete, closestReference: closestReference };
 }
 
-function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
+function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
   var sourceLabColor = rgb2lab(sourceRgbColor);
   var goldenPalette = findClosestGoldenPalette(sourceLabColor, goldenPalettes);
   var goldenColors = goldenPalette.colors;
@@ -917,7 +917,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
 }
 
 export function generateAccentPalette(rgbColor) {
-  return generatePalette(rgbColor, GOLDEN_ACCENT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
+  return generatePalette(rgbColor, GOLDEN_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
 }
 
 export function generateLightPalette(rgbColor) {
