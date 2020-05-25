@@ -69,46 +69,47 @@ var contrastRatio = function (rgbColor1, rgbColor2) {
   return rgbColor1 >= rgbColor2 ? (rgbColor1 + 0.05) / (rgbColor2 + 0.05) : (rgbColor2 + 0.05) / (rgbColor1 + 0.05);
 };
 
-var kb = function (a, b, c, d) {
-  var e = d,
-    g = d;
-  a = (a % 360) / 60;
-  var h = c * (1 - Math.abs((a % 2) - 1));
-  switch (Math.floor(a)) {
+var hsx2rgb = function (hue, alpha, chroma, m) {
+  var red = m,
+    green = m;
+  var blue = m;
+  var h = (hue % 360) / 60;
+  var x = chroma * (1 - Math.abs((h % 2) - 1)); //second largest component of this color
+  switch (Math.floor(h)) {
     case 0:
-      e += c;
-      g += h;
+      red += chroma;
+      green += x;
       break;
     case 1:
-      e += h;
-      g += c;
+      red += x;
+      green += chroma;
       break;
     case 2:
-      g += c;
-      d += h;
+      green += chroma;
+      blue += x;
       break;
     case 3:
-      g += h;
-      d += c;
+      green += x;
+      blue += chroma;
       break;
     case 4:
-      e += h;
-      d += c;
+      red += x;
+      blue += chroma;
       break;
     case 5:
-      (e += c), (d += h);
+      (red += chroma), (blue += x);
   }
-  return new RGBColor(e, g, d, b);
+  return new RGBColor(red, green, blue, alpha);
 };
 
 export function hsl2rgb(hslColor) {
   var b = (1 - Math.abs(2 * hslColor.lightness - 1)) * hslColor.saturation;
-  return kb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
+  return hsx2rgb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
 }
 
 export function hsb2rgb(hsbColor) {
   var b = hsbColor.value * hsbColor.saturation;
-  return kb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
+  return hsx2rgb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
 }
 
 export function hex2rgb(hexColor) {
