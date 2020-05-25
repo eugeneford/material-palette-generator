@@ -712,88 +712,93 @@ function getTextColor(rgbColor) {
 }
 
 function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
-  for (var c = Infinity, d = goldenPalettes[0], e = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++)
-    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < c; colorIndex++) {
-      var k = goldenPalettes[paletteIndex][colorIndex];
-      var l = (k.lightness + labColor.lightness) / 2;
-      var m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2));
-      var q = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
-      var t = (m + q) / 2;
+  for (var minEmpfindungDifference = Infinity, closestGoldenPallete = goldenPalettes[0], closestReference = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++)
+    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < minEmpfindungDifference; colorIndex++) {
+      var goldenColor = goldenPalettes[paletteIndex][colorIndex];
+      var avgLightness = (goldenColor.lightness + labColor.lightness) / 2;
+      var goldenColorChroma = Math.sqrt(Math.pow(goldenColor.a, 2) + Math.pow(goldenColor.b, 2));
+      var labColorChroma = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
+      var avgChroma = (goldenColorChroma + labColorChroma) / 2;
 
-      t =
+      var G =
         0.5 *
-        (1 - Math.sqrt(Math.pow(t, 7) / (Math.pow(t, 7) + Math.pow(25, 7))));
+        (1 - Math.sqrt(Math.pow(avgChroma, 7) / (Math.pow(avgChroma, 7) + Math.pow(25, 7))));
 
-      var n = k.a * (1 + t);
-      var r = labColor.a * (1 + t);
-      var N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2));
-      var H = Math.sqrt(Math.pow(r, 2) + Math.pow(labColor.b, 2));
+      var adjustedGoldenA = goldenColor.a * (1 + G);
+      var adjustedLabA = labColor.a * (1 + G);
+      var goldenColorAdjustedChroma = Math.sqrt(Math.pow(adjustedGoldenA, 2) + Math.pow(goldenColor.b, 2));
+      var labColorAdjustedChroma = Math.sqrt(Math.pow(adjustedLabA, 2) + Math.pow(labColor.b, 2));
 
-      t = H - N;
+      var deltaAdjustedChroma = labColorAdjustedChroma - goldenColorAdjustedChroma;
 
-      var ja = (N + H) / 2;
+      var avgAdjustedChroma = (goldenColorAdjustedChroma + labColorAdjustedChroma) / 2;
 
-      n = lab2hue(k.b, n);
-      r = lab2hue(labColor.b, r);
-      N =
+      var goldenColorModifiedHue = lab2hue(goldenColor.b, adjustedGoldenA);
+      var labColorModifiedHue = lab2hue(labColor.b, adjustedLabA);
+      var deltaHue =
         2 *
-        Math.sqrt(N * H) *
+        Math.sqrt(goldenColorAdjustedChroma * labColorAdjustedChroma) *
         Math.sin(
-          (((1e-4 > Math.abs(m) || 1e-4 > Math.abs(q)
+          (((1e-4 > Math.abs(goldenColorChroma) || 1e-4 > Math.abs(labColorChroma)
             ? 0
-            : 180 >= Math.abs(r - n)
-              ? r - n
-              : r <= n
-                ? r - n + 360
-                : r - n - 360) /
+            : 180 >= Math.abs(labColorModifiedHue - goldenColorModifiedHue)
+              ? labColorModifiedHue - goldenColorModifiedHue
+              : labColorModifiedHue <= goldenColorModifiedHue
+                ? labColorModifiedHue - goldenColorModifiedHue + 360
+                : labColorModifiedHue - goldenColorModifiedHue - 360) /
             2) *
             Math.PI) /
           180,
         );
 
-      m =
-        1e-4 > Math.abs(m) || 1e-4 > Math.abs(q)
+      avgHue =
+        1e-4 > Math.abs(goldenColorChroma) || 1e-4 > Math.abs(labColorChroma)
           ? 0
-          : 180 >= Math.abs(r - n)
-          ? (n + r) / 2
-          : 360 > n + r
-            ? (n + r + 360) / 2
-            : (n + r - 360) / 2;
+          : 180 >= Math.abs(labColorModifiedHue - goldenColorModifiedHue)
+          ? (goldenColorModifiedHue + labColorModifiedHue) / 2
+          : 360 > goldenColorModifiedHue + labColorModifiedHue
+            ? (goldenColorModifiedHue + labColorModifiedHue + 360) / 2
+            : (goldenColorModifiedHue + labColorModifiedHue - 360) / 2;
 
-      q = 1 + 0.045 * ja;
+      var chromaCompensation = 1 + 0.045 * avgAdjustedChroma;
 
-      H =
+      var hueCompensation =
         1 +
         0.015 *
-        ja *
+        avgAdjustedChroma *
         (1 -
-          0.17 * Math.cos(((m - 30) * Math.PI) / 180) +
-          0.24 * Math.cos((2 * m * Math.PI) / 180) +
-          0.32 * Math.cos(((3 * m + 6) * Math.PI) / 180) -
-          0.2 * Math.cos(((4 * m - 63) * Math.PI) / 180));
+          0.17 * Math.cos(((avgHue - 30) * Math.PI) / 180) +
+          0.24 * Math.cos((2 * avgHue * Math.PI) / 180) +
+          0.32 * Math.cos(((3 * avgHue + 6) * Math.PI) / 180) -
+          0.2 * Math.cos(((4 * avgHue - 63) * Math.PI) / 180));
+		  
+	  var lightnessCompensation = 1 + (0.015 * Math.pow(avgLightness - 50, 2)) / Math.sqrt(20 + Math.pow(avgLightness - 50, 2));
+	  
+	  var chromaRotation = 2 * Math.sqrt(Math.pow(avgAdjustedChroma, 7) / (Math.pow(avgAdjustedChroma, 7) + Math.pow(25, 7)));
+	  
+	  var deltaTheta = 30 * Math.exp(-Math.pow((avgHue - 275) / 25, 2));
+	  
+	  var hueRotation = -1 * chromaRotation *
+        Math.sin(
+          (2 * deltaTheta * Math.PI) / 180,
+        );
 
-      k = Math.sqrt(
+      var empfindungDifference = Math.sqrt(
         Math.pow(
-          (labColor.lightness - k.lightness) /
-          (1 +
-            (0.015 * Math.pow(l - 50, 2)) /
-            Math.sqrt(20 + Math.pow(l - 50, 2))),
+          (labColor.lightness - goldenColor.lightness) /
+          (lightnessCompensation),
           2,
         ) +
-        Math.pow(t / (1 * q), 2) +
-        Math.pow(N / (1 * H), 2) +
-        (t / (1 * q)) *
-        Math.sqrt(Math.pow(ja, 7) / (Math.pow(ja, 7) + Math.pow(25, 7))) *
-        Math.sin(
-          (60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI) / 180,
-        ) *
-        -2 *
-        (N / (1 * H)),
+        Math.pow(deltaAdjustedChroma / (1 * chromaCompensation), 2) +
+        Math.pow(deltaHue / (1 * hueCompensation), 2) +
+        (deltaAdjustedChroma / (1 * chromaCompensation)) *
+        hueRotation *
+        (deltaHue / (1 * hueCompensation)),
       );
 
-      k < c && ((c = k), (d = goldenPalettes[paletteIndex]), (e = colorIndex));
+      empfindungDifference < minEmpfindungDifference && ((minEmpfindungDifference = empfindungDifference), (closestGoldenPallete = goldenPalettes[paletteIndex]), (closestReference = colorIndex));
     }
-  return { colors: d, closestReference: e };
+  return { colors: closestGoldenPallete, closestReference: closestReference };
 }
 
 function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
