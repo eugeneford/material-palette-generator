@@ -642,7 +642,7 @@ var GOLDEN_ACCENT_PALETTES = [
   ],
 ];
 
-var DEFAULT_LIGHTNESS_TOLERANCE = [
+var DEFAULT_LIGHTNESS_TOLERANCE = [ //standard deviation for lightness in each tone
   2.048875457,
   5.124792061,
   8.751659557,
@@ -668,7 +668,7 @@ var REDUCED_CHROMA_TOLERANCE = [
   16.88410864,
 ];
 
-var DEFAULT_CHROMA_TOLERANCE = [
+var DEFAULT_CHROMA_TOLERANCE = [ //standard deviation for chroma in each tone, apart from 'grey' palletes (brown, grey, blue grey)
   1.762442714,
   4.213532634,
   7.395827458,
