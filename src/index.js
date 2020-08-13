@@ -69,46 +69,47 @@ var contrastRatio = function (rgbColor1, rgbColor2) {
   return rgbColor1 >= rgbColor2 ? (rgbColor1 + 0.05) / (rgbColor2 + 0.05) : (rgbColor2 + 0.05) / (rgbColor1 + 0.05);
 };
 
-var kb = function (a, b, c, d) {
-  var e = d,
-    g = d;
-  a = (a % 360) / 60;
-  var h = c * (1 - Math.abs((a % 2) - 1));
-  switch (Math.floor(a)) {
+var hsx2rgb = function (hue, alpha, chroma, m) {
+  var red = m,
+    green = m;
+  var blue = m;
+  var h = (hue % 360) / 60;
+  var x = chroma * (1 - Math.abs((h % 2) - 1)); //second largest component of this color
+  switch (Math.floor(h)) {
     case 0:
-      e += c;
-      g += h;
+      red += chroma;
+      green += x;
       break;
     case 1:
-      e += h;
-      g += c;
+      red += x;
+      green += chroma;
       break;
     case 2:
-      g += c;
-      d += h;
+      green += chroma;
+      blue += x;
       break;
     case 3:
-      g += h;
-      d += c;
+      green += x;
+      blue += chroma;
       break;
     case 4:
-      e += h;
-      d += c;
+      red += x;
+      blue += chroma;
       break;
     case 5:
-      (e += c), (d += h);
+      (red += chroma), (blue += x);
   }
-  return new RGBColor(e, g, d, b);
+  return new RGBColor(red, green, blue, alpha);
 };
 
 export function hsl2rgb(hslColor) {
   var b = (1 - Math.abs(2 * hslColor.lightness - 1)) * hslColor.saturation;
-  return kb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
+  return hsx2rgb(hslColor.hue, hslColor.alpha, b, Math.max(0, hslColor.lightness - b / 2));
 }
 
 export function hsb2rgb(hsbColor) {
   var b = hsbColor.value * hsbColor.saturation;
-  return kb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
+  return hsx2rgb(hsbColor.hue, hsbColor.alpha, b, Math.max(0, hsbColor.value - b));
 }
 
 export function hex2rgb(hexColor) {
@@ -410,7 +411,7 @@ var GOLDEN_LIGHT_PALETTES = [
   ],
 ];
 
-var GOLDEN_ACCENT_PALETTES = [
+var GOLDEN_PALETTES = [
   [
     new LABColor(94.67497003305085, 7.266715066863771, 1.000743882272359),
     new LABColor(86.7897416761699, 18.370736761658012, 4.23637133971424),
@@ -422,6 +423,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(47.09455666350969, 62.29836039074277, 40.67775424698388),
     new LABColor(43.77122063388739, 60.28633509183384, 40.31444686692952),
     new LABColor(39.555187078007386, 58.703681355389975, 41.66495027798629),
+	rgb2lab(hex2rgb("FF8A80")),
+	rgb2lab(hex2rgb("FF5252")),
+	rgb2lab(hex2rgb("FF1744")),
+	rgb2lab(hex2rgb("D50000")),
   ],
   [
     new LABColor(92.68053776327665, 9.515385232804263, -0.8994072969754852),
@@ -434,6 +439,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(42.58424189486517, 65.5411953138309, 7.595596439803797),
     new LABColor(37.977492407254836, 60.74362621842075, 2.9847124951453474),
     new LABColor(29.699290034849604, 51.90485023721311, -4.830186634107636),
+	rgb2lab(hex2rgb("FF80AB")),
+	rgb2lab(hex2rgb("FF4081")),
+	rgb2lab(hex2rgb("F50057")),
+	rgb2lab(hex2rgb("C51162"))
   ],
   [
     new LABColor(92.4362655169016, 7.542927467702299, -6.039842848605881),
@@ -446,6 +455,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(33.56291870731981, 57.637381239254104, -51.39557249855828),
     new LABColor(29.865391314234515, 54.29737439901333, -52.6601973712463),
     new LABColor(23.16724235420436, 48.51764437280498, -55.16267949015293),
+	rgb2lab(hex2rgb("EA80FC")),
+	rgb2lab(hex2rgb("E040FB")),
+	rgb2lab(hex2rgb("D500F9")),
+	rgb2lab(hex2rgb("AA00FF"))
   ],
   [
     new LABColor(92.49103426017201, 4.712320025752947, -6.532868071709763),
@@ -458,6 +471,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(30.52713367338361, 46.01498224754519, -60.19975052509064),
     new LABColor(27.44585524877222, 44.96180431854785, -60.46395810756433),
     new LABColor(21.98627670328218, 44.29296076245473, -60.93653655172098),
+	rgb2lab(hex2rgb("B388FF")),
+	rgb2lab(hex2rgb("7C4DFF")),
+	rgb2lab(hex2rgb("651FFF")),
+	rgb2lab(hex2rgb("6200EA"))
   ],
   [
     new LABColor(92.86314411983918, 1.5318147061061937, -6.025243528950552),
@@ -470,6 +487,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(31.080429988007957, 27.07394930110124, -53.97505274579958),
     new LABColor(27.026672080454922, 28.165266427558983, -53.28987325482218),
     new LABColor(19.751201587921678, 30.60784576895101, -52.13866519297474),
+	rgb2lab(hex2rgb("8C9EFF")),
+	rgb2lab(hex2rgb("536DFE")),
+	rgb2lab(hex2rgb("3D5AFE")),
+	rgb2lab(hex2rgb("304FFE"))
   ],
   [
     new LABColor(94.70682457348717, -2.835484735987326, -6.978044694792707),
@@ -482,6 +503,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(49.27006645904875, 8.470398370314381, -54.494796838457546),
     new LABColor(43.16828856394358, 11.968483076143844, -53.972567377977974),
     new LABColor(32.17757793894193, 18.96054990229354, -53.45146365049088),
+	rgb2lab(hex2rgb("82B1FF")),
+	rgb2lab(hex2rgb("448AFF")),
+	rgb2lab(hex2rgb("2979FF")),
+	rgb2lab(hex2rgb("2962FF"))
   ],
   [
     new LABColor(95.35713467762652, -4.797149155388203, -6.550002550504308),
@@ -494,6 +519,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(54.26166495426166, -3.8141836897908066, -45.97939475762498),
     new LABColor(48.10661895072673, -1.378998784464347, -44.34466750206778),
     new LABColor(36.34401147057282, 5.067812404713545, -43.11786257561915),
+	rgb2lab(hex2rgb("80D8FF")),
+	rgb2lab(hex2rgb("40C4FF")),
+	rgb2lab(hex2rgb("00B0FF")),
+	rgb2lab(hex2rgb("0091EA"))
   ],
   [
     new LABColor(95.69295154599753, -6.898716127301141, -3.994284229654421),
@@ -506,6 +535,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(56.99816432961103, -27.31081477279451, -17.86988815767443),
     new LABColor(49.75464182255671, -25.335383503694242, -15.024722591662787),
     new LABColor(36.52725894264432, -22.129641744194515, -9.176159146894303),
+	rgb2lab(hex2rgb("84FFFF")),
+	rgb2lab(hex2rgb("18FFFF")),
+	rgb2lab(hex2rgb("00E5FF")),
+	rgb2lab(hex2rgb("00B8D4"))
   ],
   [
     new LABColor(94.18453941589918, -6.08351703428972, -1.5488916051161983),
@@ -518,6 +551,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(45.269081019218405, -32.13244775422941, -0.4526371852697775),
     new LABColor(39.36899076059384, -29.25264468583161, -0.03562564673170732),
     new LABColor(28.58363043701477, -24.585465516136413, 1.8037402162492389),
+	rgb2lab(hex2rgb("A7FFEB")),
+	rgb2lab(hex2rgb("64FFDA")),
+	rgb2lab(hex2rgb("1DE9B6")),
+	rgb2lab(hex2rgb("00BFA5"))
   ],
   [
     new LABColor(95.30530183565223, -6.430415645739263, 4.292950594459599),
@@ -530,6 +567,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(52.41108688974904, -43.21761792485762, 35.62250659009424),
     new LABColor(46.2813873076426, -40.25816227675361, 33.32343229338761),
     new LABColor(34.685655305814514, -34.75343878510312, 28.866739034359767),
+	rgb2lab(hex2rgb("B9F6CA")),
+	rgb2lab(hex2rgb("69F0AE")),
+	rgb2lab(hex2rgb("00E676")),
+	rgb2lab(hex2rgb("00C853"))
   ],
   [
     new LABColor(96.70518169355954, -4.929987845095463, 6.397084523168894),
@@ -542,6 +583,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(59.91051142210195, -35.77011466063357, 46.56465847976187),
     new LABColor(52.51015841084511, -34.47903440699235, 42.20723868724268),
     new LABColor(39.41191983353878, -32.80460974352642, 35.255490585630014),
+	rgb2lab(hex2rgb("CCFF90")),
+	rgb2lab(hex2rgb("B2FF59")),
+	rgb2lab(hex2rgb("76FF03")),
+	rgb2lab(hex2rgb("64DD17"))
   ],
   [
     new LABColor(97.99506057883428, -4.059632482741494, 9.355797602381521),
@@ -554,6 +599,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(70.82385811892824, -17.788148932525672, 64.00327817988128),
     new LABColor(62.936867012868035, -13.697412111684903, 58.513000509287835),
     new LABColor(49.498610881452535, -6.485230564384715, 49.67432722833751),
+	rgb2lab(hex2rgb("F4FF81")),
+	rgb2lab(hex2rgb("EEFF41")),
+	rgb2lab(hex2rgb("C6FF00")),
+	rgb2lab(hex2rgb("AEEA00"))
   ],
   [
     new LABColor(98.93885129752759, -3.0098470288543178, 10.765736833790008),
@@ -566,6 +615,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(80.96200442419905, 8.849333792729064, 75.05050700092679),
     new LABColor(75.00342770718086, 20.340173566879283, 72.24841925958934),
     new LABColor(65.48207757431567, 39.647064970476094, 68.34872841768654),
+	rgb2lab(hex2rgb("FFFF8D")),
+	rgb2lab(hex2rgb("FFFF00")),
+	rgb2lab(hex2rgb("FFEA00")),
+	rgb2lab(hex2rgb("FFD600"))
   ],
   [
     new LABColor(97.5642392074337, -1.445525639405032, 11.881254316297674),
@@ -578,6 +631,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(73.80899654381052, 26.53614315250874, 78.21754052181723),
     new LABColor(70.1134511665764, 35.3007623359744, 75.87510992138593),
     new LABColor(63.86460405565717, 50.94648214505959, 72.17815682124423),
+	rgb2lab(hex2rgb("FFE57F")),
+	rgb2lab(hex2rgb("FFD740")),
+	rgb2lab(hex2rgb("FFC400")),
+	rgb2lab(hex2rgb("FFAB00"))
   ],
   [
     new LABColor(96.30459517801387, 0.923151172282477, 10.598439446083074),
@@ -590,6 +647,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(64.83017495535229, 40.91200730099703, 71.9596053545428),
     new LABColor(60.8534207471871, 46.41483590510681, 69.18061963415211),
     new LABColor(54.77571742962287, 55.282751019360035, 65.10193403547922),
+	rgb2lab(hex2rgb("FFD180")),
+	rgb2lab(hex2rgb("FFAB40")),
+	rgb2lab(hex2rgb("FF9100")),
+	rgb2lab(hex2rgb("FF6D00"))
   ],
   [
     new LABColor(93.69219844671957, 5.763979334358293, 3.1700162796469034),
@@ -602,6 +663,10 @@ var GOLDEN_ACCENT_PALETTES = [
     new LABColor(53.810052616293845, 58.36760943780162, 58.19586806694884),
     new LABColor(50.301352405105874, 56.40104898089937, 55.924141992404344),
     new LABColor(43.86477994548343, 52.970887703910726, 52.30067989225532),
+	rgb2lab(hex2rgb("FF9E80")),
+	rgb2lab(hex2rgb("FF6E40")),
+	rgb2lab(hex2rgb("FF3D00")),
+	rgb2lab(hex2rgb("DD2C00")),
   ],
   [
     new LABColor(93.29864888069987, 0.9915456090475727, 1.442353076378411),
@@ -641,7 +706,7 @@ var GOLDEN_ACCENT_PALETTES = [
   ],
 ];
 
-var DEFAULT_LIGHTNESS_TOLERANCE = [
+var DEFAULT_LIGHTNESS_TOLERANCE = [ //standard deviation for lightness in each tone
   2.048875457,
   5.124792061,
   8.751659557,
@@ -652,6 +717,10 @@ var DEFAULT_LIGHTNESS_TOLERANCE = [
   15.09779227,
   15.13738673,
   15.09818372,
+  12.16800645,
+  17.26178879,
+  17.87176166,
+  16.72047178,
 ];
 
 var REDUCED_CHROMA_TOLERANCE = [
@@ -667,7 +736,7 @@ var REDUCED_CHROMA_TOLERANCE = [
   16.88410864,
 ];
 
-var DEFAULT_CHROMA_TOLERANCE = [
+var DEFAULT_CHROMA_TOLERANCE = [ //standard deviation for chroma in each tone, apart from 'grey' palletes (brown, grey, blue grey)
   1.762442714,
   4.213532634,
   7.395827458,
@@ -678,6 +747,10 @@ var DEFAULT_CHROMA_TOLERANCE = [
   16.54160806,
   17.35916727,
   19.88410864,
+  12.82357630,
+  18.40545289,
+  21.71894697,
+  23.23753494,
 ];
 
 var lightTextEmphasis = {
@@ -711,91 +784,96 @@ function getTextColor(rgbColor) {
 }
 
 function findClosestGoldenPalette(labColor, goldenPalettes = GOLDEN_PALETTES) {
-  for (var c = Infinity, d = goldenPalettes[0], e = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++)
-    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < c; colorIndex++) {
-      var k = goldenPalettes[paletteIndex][colorIndex];
-      var l = (k.lightness + labColor.lightness) / 2;
-      var m = Math.sqrt(Math.pow(k.a, 2) + Math.pow(k.b, 2));
-      var q = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
-      var t = (m + q) / 2;
+  for (var minEmpfindungDifference = Infinity, closestGoldenPallete = goldenPalettes[0], closestReference = -1, paletteIndex = 0; paletteIndex < goldenPalettes.length; paletteIndex++)
+    for (var colorIndex = 0; colorIndex < goldenPalettes[paletteIndex].length && 0 < minEmpfindungDifference; colorIndex++) {
+      var goldenColor = goldenPalettes[paletteIndex][colorIndex];
+      var avgLightness = (goldenColor.lightness + labColor.lightness) / 2;
+      var goldenColorChroma = Math.sqrt(Math.pow(goldenColor.a, 2) + Math.pow(goldenColor.b, 2));
+      var labColorChroma = Math.sqrt(Math.pow(labColor.a, 2) + Math.pow(labColor.b, 2));
+      var avgChroma = (goldenColorChroma + labColorChroma) / 2;
 
-      t =
+      var G =
         0.5 *
-        (1 - Math.sqrt(Math.pow(t, 7) / (Math.pow(t, 7) + Math.pow(25, 7))));
+        (1 - Math.sqrt(Math.pow(avgChroma, 7) / (Math.pow(avgChroma, 7) + Math.pow(25, 7))));
 
-      var n = k.a * (1 + t);
-      var r = labColor.a * (1 + t);
-      var N = Math.sqrt(Math.pow(n, 2) + Math.pow(k.b, 2));
-      var H = Math.sqrt(Math.pow(r, 2) + Math.pow(labColor.b, 2));
+      var adjustedGoldenA = goldenColor.a * (1 + G);
+      var adjustedLabA = labColor.a * (1 + G);
+      var goldenColorAdjustedChroma = Math.sqrt(Math.pow(adjustedGoldenA, 2) + Math.pow(goldenColor.b, 2));
+      var labColorAdjustedChroma = Math.sqrt(Math.pow(adjustedLabA, 2) + Math.pow(labColor.b, 2));
 
-      t = H - N;
+      var deltaAdjustedChroma = labColorAdjustedChroma - goldenColorAdjustedChroma;
 
-      var ja = (N + H) / 2;
+      var avgAdjustedChroma = (goldenColorAdjustedChroma + labColorAdjustedChroma) / 2;
 
-      n = lab2hue(k.b, n);
-      r = lab2hue(labColor.b, r);
-      N =
+      var goldenColorModifiedHue = lab2hue(goldenColor.b, adjustedGoldenA);
+      var labColorModifiedHue = lab2hue(labColor.b, adjustedLabA);
+      var deltaHue =
         2 *
-        Math.sqrt(N * H) *
+        Math.sqrt(goldenColorAdjustedChroma * labColorAdjustedChroma) *
         Math.sin(
-          (((1e-4 > Math.abs(m) || 1e-4 > Math.abs(q)
+          (((1e-4 > Math.abs(goldenColorChroma) || 1e-4 > Math.abs(labColorChroma)
             ? 0
-            : 180 >= Math.abs(r - n)
-              ? r - n
-              : r <= n
-                ? r - n + 360
-                : r - n - 360) /
+            : 180 >= Math.abs(labColorModifiedHue - goldenColorModifiedHue)
+              ? labColorModifiedHue - goldenColorModifiedHue
+              : labColorModifiedHue <= goldenColorModifiedHue
+                ? labColorModifiedHue - goldenColorModifiedHue + 360
+                : labColorModifiedHue - goldenColorModifiedHue - 360) /
             2) *
             Math.PI) /
           180,
         );
 
-      m =
-        1e-4 > Math.abs(m) || 1e-4 > Math.abs(q)
+      avgHue =
+        1e-4 > Math.abs(goldenColorChroma) || 1e-4 > Math.abs(labColorChroma)
           ? 0
-          : 180 >= Math.abs(r - n)
-          ? (n + r) / 2
-          : 360 > n + r
-            ? (n + r + 360) / 2
-            : (n + r - 360) / 2;
+          : 180 >= Math.abs(labColorModifiedHue - goldenColorModifiedHue)
+          ? (goldenColorModifiedHue + labColorModifiedHue) / 2
+          : 360 > goldenColorModifiedHue + labColorModifiedHue
+            ? (goldenColorModifiedHue + labColorModifiedHue + 360) / 2
+            : (goldenColorModifiedHue + labColorModifiedHue - 360) / 2;
 
-      q = 1 + 0.045 * ja;
+      var chromaCompensation = 1 + 0.045 * avgAdjustedChroma;
 
-      H =
+      var hueCompensation =
         1 +
         0.015 *
-        ja *
+        avgAdjustedChroma *
         (1 -
-          0.17 * Math.cos(((m - 30) * Math.PI) / 180) +
-          0.24 * Math.cos((2 * m * Math.PI) / 180) +
-          0.32 * Math.cos(((3 * m + 6) * Math.PI) / 180) -
-          0.2 * Math.cos(((4 * m - 63) * Math.PI) / 180));
+          0.17 * Math.cos(((avgHue - 30) * Math.PI) / 180) +
+          0.24 * Math.cos((2 * avgHue * Math.PI) / 180) +
+          0.32 * Math.cos(((3 * avgHue + 6) * Math.PI) / 180) -
+          0.2 * Math.cos(((4 * avgHue - 63) * Math.PI) / 180));
+		  
+	  var lightnessCompensation = 1 + (0.015 * Math.pow(avgLightness - 50, 2)) / Math.sqrt(20 + Math.pow(avgLightness - 50, 2));
+	  
+	  var chromaRotation = 2 * Math.sqrt(Math.pow(avgAdjustedChroma, 7) / (Math.pow(avgAdjustedChroma, 7) + Math.pow(25, 7)));
+	  
+	  var deltaTheta = 30 * Math.exp(-Math.pow((avgHue - 275) / 25, 2));
+	  
+	  var hueRotation = -1 * chromaRotation *
+        Math.sin(
+          (2 * deltaTheta * Math.PI) / 180,
+        );
 
-      k = Math.sqrt(
+      var empfindungDifference = Math.sqrt(
         Math.pow(
-          (labColor.lightness - k.lightness) /
-          (1 +
-            (0.015 * Math.pow(l - 50, 2)) /
-            Math.sqrt(20 + Math.pow(l - 50, 2))),
+          (labColor.lightness - goldenColor.lightness) /
+          (lightnessCompensation),
           2,
         ) +
-        Math.pow(t / (1 * q), 2) +
-        Math.pow(N / (1 * H), 2) +
-        (t / (1 * q)) *
-        Math.sqrt(Math.pow(ja, 7) / (Math.pow(ja, 7) + Math.pow(25, 7))) *
-        Math.sin(
-          (60 * Math.exp(-Math.pow((m - 275) / 25, 2)) * Math.PI) / 180,
-        ) *
-        -2 *
-        (N / (1 * H)),
+        Math.pow(deltaAdjustedChroma / (1 * chromaCompensation), 2) +
+        Math.pow(deltaHue / (1 * hueCompensation), 2) +
+        (deltaAdjustedChroma / (1 * chromaCompensation)) *
+        hueRotation *
+        (deltaHue / (1 * hueCompensation)),
       );
 
-      k < c && ((c = k), (d = goldenPalettes[paletteIndex]), (e = colorIndex));
+      empfindungDifference < minEmpfindungDifference && ((minEmpfindungDifference = empfindungDifference), (closestGoldenPallete = goldenPalettes[paletteIndex]), (closestReference = colorIndex));
     }
-  return { colors: d, closestReference: e };
+  return { colors: closestGoldenPallete, closestReference: closestReference };
 }
 
-function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
+function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_PALETTES, lightnessTolerance = DEFAULT_LIGHTNESS_TOLERANCE, chromaTolerance = DEFAULT_CHROMA_TOLERANCE) {
   var sourceLabColor = rgb2lab(sourceRgbColor);
   var goldenPalette = findClosestGoldenPalette(sourceLabColor, goldenPalettes);
   var goldenColors = goldenPalette.colors;
@@ -813,6 +891,10 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
     if (goldenLabColor === closestGoldenLabColor) {
       lightnessMaximum = Math.max(sourceLchColor.lightness - 1.7, 0);
       return sourceRgbColor;
+    }
+	  
+    if(index === 10) {
+      lightnessMaximum = 100; //restart maximum lightness when trasitioning from color 900 to A100
     }
 
     var goldenLchColor = lab2lch(goldenLabColor);
@@ -835,7 +917,7 @@ function generatePalette(sourceRgbColor, goldenPalettes = GOLDEN_ACCENT_PALETTES
 }
 
 export function generateAccentPalette(rgbColor) {
-  return generatePalette(rgbColor, GOLDEN_ACCENT_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
+  return generatePalette(rgbColor, GOLDEN_PALETTES, DEFAULT_LIGHTNESS_TOLERANCE, DEFAULT_CHROMA_TOLERANCE);
 }
 
 export function generateLightPalette(rgbColor) {
