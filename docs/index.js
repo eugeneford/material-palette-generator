@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import contrast from 'get-contrast';
 import copyTextToClipboard from 'copy-text-to-clipboard';
-import { hex2lch } from '@csstools/convert-colors';
-import * as Generator from '../dist/palette-generator';
+import { generateAccentPalette, generateLightPalette, generateDarkPalette } from '../src/index.js';
+import { transformColor, rgb2hex, hex2lch } from '../src/util.js';
 
 class Palette extends React.Component {
   constructor(props) {
@@ -37,14 +37,14 @@ class Palette extends React.Component {
               backgroundColor: `#${color}`,
             };
 
-            return (<div key={i} style={cellStyle} className={cellClass}/>);
+            return (<div key={i} style={cellStyle} className={cellClass} />);
           })}
         </div>
         <div className="color-palette__row">
           {['900', '800', '700', '600', '500', '400', '300', '200', '100', '50'].map((shade, i) => {
             return (
               <div key={i} className="color-palette__color-weight-label">{shade}</div>
-            )
+            );
           })}
         </div>
       </div>
@@ -53,18 +53,18 @@ class Palette extends React.Component {
 
   renderPalette() {
     const { type, sourceColor } = this.props;
-    const sourceRGBColor = Generator.hsb2rgb(Generator.rgb2hsb(Generator.hex2rgb(sourceColor)));
+    const sourceRGBColor = transformColor(sourceColor);
     let palette;
 
     switch (type) {
       case 'light':
-        palette = Generator.generateLightPalette(sourceRGBColor);
+        palette = generateLightPalette(sourceRGBColor);
         break;
       case 'dark':
-        palette = Generator.generateDarkPalette(sourceRGBColor);
+        palette = generateDarkPalette(sourceRGBColor);
         break;
       case 'accent':
-        palette = Generator.generateAccentPalette(sourceRGBColor);
+        palette = generateAccentPalette(sourceRGBColor);
         break;
     }
 
@@ -73,12 +73,12 @@ class Palette extends React.Component {
         <div className="color-palette__label">{type}</div>
         <div className="color-palette__row">
           {palette.reverse().map((color, i) => {
-            const hexColor = Generator.rgb2hex(color);
+            const hexColor = rgb2hex(color);
             const whiteRatio = contrast.ratio(`#${hexColor}`, '#fff');
             const darkRatio = contrast.ratio(`#${hexColor}`, '#000');
 
             const isSelected = color.equals(sourceRGBColor);
-            const cellClass = `color-palette__cell ${ isSelected ? 'color-palette__cell--selected' : ''}`;
+            const cellClass = `color-palette__cell ${isSelected ? 'color-palette__cell--selected' : ''}`;
             const cellStyle = {
               backgroundColor: `#${hexColor}`,
               color: whiteRatio > darkRatio ? '#fff' : '#000',
@@ -98,7 +98,7 @@ class Palette extends React.Component {
           {['900', '800', '700', '600', '500', '400', '300', '200', '100', '50'].map((shade, i) => {
             return (
               <div key={i} className="color-palette__color-weight-label">{shade}</div>
-            )
+            );
           })}
         </div>
       </div>
@@ -130,7 +130,7 @@ class ClipboardNotification extends React.Component {
           visible: false,
         });
       }, 300);
-    })
+    });
   }
 
   render() {
@@ -154,13 +154,13 @@ class App extends React.Component {
   render() {
     const { userInput, sourceColor } = this.state;
     const lchColor = hex2lch(sourceColor);
-    const isDark = lchColor[0] <= 38;
-    const isLight = lchColor[0] >= 62;
-    const isGrey = lchColor[1] <= 30;
+    const isDark = lchColor.lightness <= 38;
+    const isLight = lchColor.lightness >= 62;
+    const isGrey = lchColor.chroma <= 30;
 
     return (
       <div className="color-tool">
-        <ClipboardNotification/>
+        <ClipboardNotification />
         <h1 className="page-title">Palette Generator</h1>
         <input value={userInput} onChange={(e) => {
           const nextUserInput = e.target.value;
@@ -172,14 +172,13 @@ class App extends React.Component {
             userInput: nextUserInput,
             sourceColor: nextColor || sourceColor,
           });
-        }}/>
-        <Palette type="accent" sourceColor={sourceColor} disabled={false}/>
-        <Palette type="light" sourceColor={sourceColor} disabled={!isLight || !isGrey}/>
-        <Palette type="dark" sourceColor={sourceColor} disabled={!isDark || !isGrey}/>
+        }} />
+        <Palette type="accent" sourceColor={sourceColor} disabled={false} />
+        <Palette type="light" sourceColor={sourceColor} disabled={!isLight || !isGrey} />
+        <Palette type="dark" sourceColor={sourceColor} disabled={!isDark || !isGrey} />
       </div>
     );
   }
 }
 
-ReactDOM.render(<App/>, document.getElementById('root-container'));
-
+ReactDOM.render(<App />, document.getElementById('root-container'));

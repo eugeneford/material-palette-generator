@@ -25,7 +25,6 @@
   "author": "Eugene Ford",
   "license": "MIT",
   "devDependencies": {
-    "@csstools/convert-colors": "^2.0.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
