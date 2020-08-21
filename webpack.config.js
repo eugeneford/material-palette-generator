@@ -1,23 +1,17 @@
 path = require('path');
 
 module.exports = {
-  entry: './src/index',
+  entry: './src/index.js',
+  mode: 'production',
   output: {
-    filename: './dist/palette-generator.js',
+    filename: './palette-generator.js',
     library: 'PaletteGenerator',
     libraryTarget: 'umd',
   },
   module: {
-    loaders: [{
+    rules: [{
       test: /\.js$/,
-      include: [
-        path.resolve(__dirname, 'src/')
-      ],
       loader: 'babel-loader'
     }]
-  },
-
-  resolve: {
-    extensions: ['.js']
   }
 };

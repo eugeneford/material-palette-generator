@@ -9,13 +9,13 @@
   },
   "scripts": {
     "build": "webpack",
-    "build-watch": "webpack --watch",
+    "build-watch": "webpack --mode development --watch",
     "test": "karma start --single-run",
     "test-watch": "karma start",
     "lint": "eslint src/*.js src/*.jsx",
     "demo-build": "webpack --config webpack.demo.config.js",
-    "demo-watch": "webpack --config webpack.demo.config.js --watch",
-    "demo-serve": "node pushstate-server.config.js"
+    "demo-watch": "webpack --config webpack.demo.config.js --mode development --watch",
+    "demo-serve": "webpack-dev-server --config webpack.demo.config.js --mode development"
   },
   "keywords": [
     "colors",
@@ -32,15 +32,15 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "copy-text-to-clipboard": "^2.1.0",
-    "coveralls": "^3.0.0",
-    "enzyme": "^3.2.0",
-    "enzyme-adapter-react-16": "^1.1.0",
+    "copy-text-to-clipboard": "^2.2.0",
+    "coveralls": "^3.1.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.3",
     "eslint": "^4.12.1",
     "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.6",
     "get-contrast": "^2.0.0",
     "istanbul-instrumenter-loader": "^3.0.0",
     "jasmine-core": "^2.7.0",
@@ -50,10 +50,11 @@
     "karma-jasmine": "^1.1.0",
     "karma-webpack": "^2.0.6",
     "prop-types": "^15.6.0",
-    "pushstate-server": "^3.0.1",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-test-renderer": "^16.2.0",
-    "webpack": "^3.9.1"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-test-renderer": "^16.13.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }

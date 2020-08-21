@@ -1,24 +1,24 @@
-path = require('path');
+const path = require('path');
+const outputPath = path.join(__dirname, 'docs');
 
 module.exports = {
-  entry: './docs/index',
+  entry: './docs/index.js',
+  mode: 'production',
   output: {
-    filename: './docs/bundle.js'
+    path: outputPath,
+    filename: 'bundle.js'
   },
-
   devtool: 'source-map',
-
   module: {
-    loaders: [{
-      test: /\.jsx?$/,
-      include: [
-        path.resolve(__dirname, 'docs/'),
-      ],
+    rules: [{
+      test: /\.(js|jsx)?$/,
+      include: [outputPath],
       loader: 'babel-loader'
     }]
   },
-
-  resolve: {
-    extensions: ['.js', '.jsx']
+  devServer: {
+    contentBase: outputPath,
+    port: 8800,
+    watchContentBase: true
   }
 };
